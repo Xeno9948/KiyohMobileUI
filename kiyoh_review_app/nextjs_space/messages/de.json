@@ -1,0 +1,14 @@
+{
+    "Header": {
+        "dashboard": "Dashboard",
+        "reviews": "Reviews",
+        "invites": "Invites",
+        "settings": "Settings",
+        "admin": "Admin",
+        "profile": "Profile",
+        "logout": "Logout"
+    },
+    "ThemeToggle": {
+        "toggle": "Toggle theme"
+    }
+}
