@@ -227,7 +227,102 @@ export default function AdminContent() {
   };
 
   return (
+  const [globalSettings, setGlobalSettings] = useState({ aiProvider: "openai", aiApiKey: "", aiModel: "gpt-4-turbo" });
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  const fetchGlobalSettings = async () => {
+    try {
+      const res = await fetch("/api/admin/settings");
+      if (res.ok) {
+        const data = await res.json();
+        setGlobalSettings(data.settings);
+      }
+    } catch (err) {
+      console.error("Failed to fetch settings:", err);
+    }
+  };
+
+  const saveGlobalSettings = async () => {
+    setSavingSettings(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(globalSettings),
+      });
+      if (res.ok) {
+        // Show success maybe?
+      }
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGlobalSettings();
+  }, []);
+
+  return (
     <div className="space-y-6">
+      {/* Global Settings Card (Visible to Super Admin) */}
+      <div className="kiyoh-card p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+            <Sparkles className="text-[#6bbc4a]" size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Global AI Configuration</h2>
+            <p className="text-gray-400 text-sm">Manage the central AI provider for all review analysis</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">AI Provider</label>
+            <div className="flex gap-2">
+              {['openai', 'anthropic', 'abacus'].map((provider) => (
+                <button
+                  key={provider}
+                  onClick={() => setGlobalSettings({ ...globalSettings, aiProvider: provider })}
+                  className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all border ${globalSettings.aiProvider === provider
+                      ? "bg-[#6bbc4a] border-[#6bbc4a] text-white shadow-lg shadow-green-500/20"
+                      : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                    }`}
+                >
+                  {provider.charAt(0).toUpperCase() + provider.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">Master API Key</label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                <input
+                  type="password"
+                  value={globalSettings.aiApiKey || ""}
+                  onChange={(e) => setGlobalSettings({ ...globalSettings, aiApiKey: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-[#6bbc4a] focus:ring-1 focus:ring-[#6bbc4a] transition-all font-mono text-sm"
+                  placeholder="sk-..."
+                />
+              </div>
+              <button
+                onClick={saveGlobalSettings}
+                disabled={savingSettings}
+                className="btn-kiyoh !bg-[#6bbc4a] !border-none text-white px-6 shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {savingSettings ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div>
         <h1 className="text-2xl font-bold text-[#3d3d3d]">Admin Dashboard</h1>
         <p className="text-gray-500">Beheer gebruikers, bedrijven en AI instellingen</p>
