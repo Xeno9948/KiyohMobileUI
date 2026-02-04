@@ -1,8 +1,3 @@
-export const metadata = {
-    title: 'Kiyoh Review Manager',
-    description: 'Manage your Kiyoh reviews',
-};
-
 export default function RootLayout({
     children,
 }: {
