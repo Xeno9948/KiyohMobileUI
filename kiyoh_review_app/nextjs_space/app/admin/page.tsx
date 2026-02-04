@@ -3,9 +3,11 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import AdminContent from "./admin-content";
 
+import Header from "@/components/header";
+
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session) {
     redirect("/login");
   }
@@ -15,5 +17,12 @@ export default async function AdminPage() {
     redirect("/dashboard");
   }
 
-  return <AdminContent />;
+  return (
+    <div className="min-h-screen">
+      <Header />
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <AdminContent />
+      </main>
+    </div>
+  );
 }

@@ -588,81 +588,75 @@ export default function AdminContent() {
           </motion.div>
         </div>
       )}
-    </div>
-  )
-}
-
-{/* Edit Company Modal */ }
-{
-  editModal && (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeEditModal}>
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-[#3d3d3d]">Bedrijf Bewerken</h3>
-          <button onClick={closeEditModal} className="p-2 hover:bg-gray-100 rounded-full">
-            <X size={20} className="text-gray-500" />
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Bedrijfsnaam</label>
-            <input
-              type="text"
-              value={editForm.name}
-              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-              className="kiyoh-input w-full"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Location ID</label>
-            <input
-              type="text"
-              value={editForm.locationId}
-              onChange={(e) => setEditForm({ ...editForm, locationId: e.target.value })}
-              className="kiyoh-input w-full bg-gray-50"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Update API Token</label>
-            <input
-              type="text"
-              value={editForm.apiToken}
-              onChange={(e) => setEditForm({ ...editForm, apiToken: e.target.value })}
-              className="kiyoh-input w-full font-mono text-sm"
-              placeholder="Laat leeg om niet te wijzigen"
-            />
-            <p className="text-xs text-gray-500 mt-1">Vul alleen in als u een nieuwe token wilt instellen.</p>
-          </div>
-
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600 text-sm">
-              <AlertCircle size={16} />
-              {error}
+      {/* Edit Company Modal */}
+      {editModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeEditModal}>
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-[#3d3d3d]">Bedrijf Bewerken</h3>
+              <button onClick={closeEditModal} className="p-2 hover:bg-gray-100 rounded-full">
+                <X size={20} className="text-gray-500" />
+              </button>
             </div>
-          )}
 
-          <div className="flex gap-3 pt-2">
-            <button onClick={closeEditModal} className="flex-1 btn-secondary">
-              Annuleren
-            </button>
-            <button onClick={handleSaveCompany} disabled={savingCompany} className="flex-1 btn-kiyoh justify-center disabled:opacity-50">
-              {savingCompany ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
-              {savingCompany ? "Opslaan..." : "Opslaan"}
-            </button>
-          </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">Bedrijfsnaam</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="kiyoh-input w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">Location ID</label>
+                <input
+                  type="text"
+                  value={editForm.locationId}
+                  onChange={(e) => setEditForm({ ...editForm, locationId: e.target.value })}
+                  className="kiyoh-input w-full bg-gray-50"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">Update API Token</label>
+                <input
+                  type="text"
+                  value={editForm.apiToken}
+                  onChange={(e) => setEditForm({ ...editForm, apiToken: e.target.value })}
+                  className="kiyoh-input w-full font-mono text-sm"
+                  placeholder="Laat leeg om niet te wijzigen"
+                />
+                <p className="text-xs text-gray-500 mt-1">Vul alleen in als u een nieuwe token wilt instellen.</p>
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600 text-sm">
+                  <AlertCircle size={16} />
+                  {error}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button onClick={closeEditModal} className="flex-1 btn-secondary">
+                  Annuleren
+                </button>
+                <button onClick={handleSaveCompany} disabled={savingCompany} className="flex-1 btn-kiyoh justify-center disabled:opacity-50">
+                  {savingCompany ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
+                  {savingCompany ? "Opslaan..." : "Opslaan"}
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
+      )}
     </div>
-  )
-}
-    </div >
   );
 }
