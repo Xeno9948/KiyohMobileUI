@@ -1,8 +1,6 @@
 import { getRequestConfig } from 'next-intl/server';
 import { cookies } from 'next/headers';
-
-export const locales = ['en', 'nl', 'de', 'fr', 'es'];
-export const defaultLocale = 'en';
+import { defaultLocale } from './config';
 
 export default getRequestConfig(async () => {
     const cookieStore = cookies();
