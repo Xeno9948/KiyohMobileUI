@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Users, CheckCircle, Clock, Star, Search, Filter, RefreshCw, Key, Copy, AlertCircle, Loader2, X, Building2, Sparkles, ToggleLeft, ToggleRight, Edit2 } from "lucide-react";
@@ -36,6 +37,7 @@ interface Company {
 type TabType = "users" | "companies";
 
 export default function AdminContent() {
+  const t = useTranslations('Admin');
   const [activeTab, setActiveTab] = useState<TabType>("users");
   const [users, setUsers] = useState<User[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -231,10 +233,9 @@ export default function AdminContent() {
   return (
     <div className="space-y-6">
 
-
       <div>
-        <h1 className="text-2xl font-bold text-[#3d3d3d]">Admin Dashboard</h1>
-        <p className="text-gray-500">Beheer gebruikers, bedrijven en AI instellingen</p>
+        <h1 className="text-2xl font-bold text-[#3d3d3d]">{t('title')}</h1>
+        <p className="text-gray-500">{t('subtitle')}</p>
       </div>
 
       {/* Tabs */}
@@ -247,7 +248,7 @@ export default function AdminContent() {
             }`}
         >
           <Users size={16} className="inline-block mr-2" />
-          Gebruikers
+          {t('tabs.users')}
         </button>
         <button
           onClick={() => setActiveTab("companies")}
@@ -257,7 +258,7 @@ export default function AdminContent() {
             }`}
         >
           <Building2 size={16} className="inline-block mr-2" />
-          Bedrijven & AI
+          {t('tabs.companies')}
         </button>
       </div>
 
@@ -266,10 +267,10 @@ export default function AdminContent() {
         activeTab === "users" ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Totaal gebruikers", value: userStats.total, icon: Users, color: "#6bbc4a" },
-              { label: "API geconfigureerd", value: userStats.apiConfigured, icon: CheckCircle, color: "#6bbc4a" },
-              { label: "Actief (24u)", value: userStats.activeRecently, icon: Clock, color: "#ffcc01" },
-              { label: "Totaal reviews", value: userStats.totalReviews.toLocaleString("nl-NL"), icon: Star, color: "#eb5b0c" },
+              { label: t('stats.totalUsers'), value: userStats.total, icon: Users, color: "#6bbc4a" },
+              { label: t('stats.apiConfigured'), value: userStats.apiConfigured, icon: CheckCircle, color: "#6bbc4a" },
+              { label: t('stats.activeRecently'), value: userStats.activeRecently, icon: Clock, color: "#ffcc01" },
+              { label: t('stats.totalReviews'), value: userStats.totalReviews.toLocaleString("nl-NL"), icon: Star, color: "#eb5b0c" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -296,10 +297,10 @@ export default function AdminContent() {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Totaal bedrijven", value: companyStats.total, icon: Building2, color: "#6bbc4a" },
-              { label: "AI ingeschakeld", value: companyStats.aiEnabled, icon: Sparkles, color: "#6bbc4a" },
-              { label: "Totaal gebruikers", value: companyStats.totalUsers, icon: Users, color: "#ffcc01" },
-              { label: "Verzonden invites", value: companyStats.totalInvites.toLocaleString("nl-NL"), icon: CheckCircle, color: "#eb5b0c" },
+              { label: t('stats.totalCompanies'), value: companyStats.total, icon: Building2, color: "#6bbc4a" },
+              { label: t('stats.aiEnabled'), value: companyStats.aiEnabled, icon: Sparkles, color: "#6bbc4a" },
+              { label: t('stats.totalUsers'), value: companyStats.totalUsers, icon: Users, color: "#ffcc01" },
+              { label: t('stats.sentInvites'), value: companyStats.totalInvites.toLocaleString("nl-NL"), icon: CheckCircle, color: "#eb5b0c" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -338,16 +339,16 @@ export default function AdminContent() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="kiyoh-input pl-11"
-                  placeholder="Zoek op naam, email of bedrijf..."
+                  placeholder={t('searchPlaceholder')}
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">API:</span>
+                <span className="text-sm text-gray-500">{t('filterApi')}</span>
                 {[
-                  { value: "all", label: "Alle" },
-                  { value: "yes", label: "Ja" },
-                  { value: "no", label: "Nee" },
+                  { value: "all", label: "All" },
+                  { value: "yes", label: "Yes" },
+                  { value: "no", label: "No" },
                 ].map((option) => (
                   <button
                     key={option.value}
@@ -361,7 +362,7 @@ export default function AdminContent() {
 
               <button onClick={fetchUsers} className="btn-secondary flex items-center gap-2">
                 <RefreshCw size={16} />
-                Vernieuwen
+                {t('refresh')}
               </button>
             </div>
           </div>
@@ -374,7 +375,7 @@ export default function AdminContent() {
           <div className="flex justify-end">
             <button onClick={fetchCompanies} className="btn-secondary flex items-center gap-2">
               <RefreshCw size={16} />
-              Vernieuwen
+              {t('refresh')}
             </button>
           </div>
         )
@@ -393,20 +394,20 @@ export default function AdminContent() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Gebruiker</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Bedrijf</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">API</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Reviews</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Uitnodigingen</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Laatst actief</th>
-                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">Acties</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.user')}</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.company')}</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.api')}</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.reviews')}</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.invites')}</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.lastActive')}</th>
+                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">{t('table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-12 text-gray-500">
-                        Geen gebruikers gevonden
+                        {t('searchPlaceholder')}
                       </td>
                     </tr>
                   ) : (
@@ -432,16 +433,16 @@ export default function AdminContent() {
                           {user.hasApiSetup ? (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">
                               <CheckCircle size={12} />
-                              Ja
+                              Yes
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-medium">
-                              Nee
+                              No
                             </span>
                           )}
                         </td>
                         <td className="py-4 px-5 text-center font-medium text-[#3d3d3d]">
-                          {user.reviewCount.toLocaleString("nl-NL")}
+                          {user.reviewCount.toLocaleString()}
                         </td>
                         <td className="py-4 px-5 text-center text-gray-600">
                           {user.invitesSent}
@@ -455,7 +456,7 @@ export default function AdminContent() {
                             className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
                           >
                             <Key size={14} />
-                            Reset
+                            {t('actions.reset')}
                           </button>
                         </td>
                       </tr>
@@ -472,20 +473,20 @@ export default function AdminContent() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Bedrijf</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Location ID</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Gebruikers</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Invites</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Aangemaakt</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">AI</th>
-                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">Acties</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.company')}</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.locationId')}</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('stats.totalUsers')}</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.invites')}</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.created')}</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.ai')}</th>
+                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">{t('table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {companies.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-12 text-gray-500">
-                        Geen bedrijven gevonden
+                        {t('searchPlaceholder')}
                       </td>
                     </tr>
                   ) : (
@@ -524,7 +525,7 @@ export default function AdminContent() {
                             ) : (
                               <ToggleLeft size={16} />
                             )}
-                            {company.aiEnabled ? "Aan" : "Uit"}
+                            {company.aiEnabled ? t('actions.on') : t('actions.off')}
                           </button>
                         </td>
                       </tr>
@@ -548,7 +549,7 @@ export default function AdminContent() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-[#3d3d3d]">Wachtwoord resetten</h3>
+                <h3 className="text-xl font-bold text-[#3d3d3d]">{t('modals.resetTitle')}</h3>
                 <button onClick={closeResetModal} className="p-2 hover:bg-gray-100 rounded-full">
                   <X size={20} className="text-gray-500" />
                 </button>
@@ -557,12 +558,12 @@ export default function AdminContent() {
               {tempPassword ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-green-50 rounded-xl">
-                    <p className="text-sm text-green-700 mb-2">Tijdelijk wachtwoord voor {resetModal.email}:</p>
+                    <p className="text-sm text-green-700 mb-2">{t('modals.tempPassword')} {resetModal.email}:</p>
                     <div className="flex items-center gap-2">
                       <code className="flex-1 bg-white px-3 py-2 rounded-lg font-mono text-[#3d3d3d] border border-green-200">
                         {tempPassword}
                       </code>
-                      <button onClick={copyToClipboard} className="btn-secondary !p-2" title="Kopiëren">
+                      <button onClick={copyToClipboard} className="btn-secondary !p-2" title="Copy">
                         <Copy size={18} />
                       </button>
                     </div>
@@ -571,13 +572,13 @@ export default function AdminContent() {
                     Deel dit wachtwoord veilig met de gebruiker. Ze moeten het bij eerste login wijzigen.
                   </p>
                   <button onClick={closeResetModal} className="w-full btn-kiyoh justify-center">
-                    Sluiten
+                    {t('actions.cancel')}
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <p className="text-gray-600">
-                    Weet u zeker dat u het wachtwoord wilt resetten voor <strong>{resetModal.email}</strong>?
+                    {t('modals.resetConfirm')} <strong>{resetModal.email}</strong>?
                   </p>
 
                   {error && (
@@ -589,11 +590,11 @@ export default function AdminContent() {
 
                   <div className="flex gap-3">
                     <button onClick={closeResetModal} className="flex-1 btn-secondary">
-                      Annuleren
+                      {t('actions.cancel')}
                     </button>
                     <button onClick={handleResetPassword} disabled={resetting} className="flex-1 btn-kiyoh justify-center disabled:opacity-50">
                       {resetting ? <Loader2 className="animate-spin" size={18} /> : <Key size={18} />}
-                      {resetting ? "Resetten..." : "Wachtwoord resetten"}
+                      {resetting ? "Resetting..." : t('modals.resetTitle')}
                     </button>
                   </div>
                 </div>
@@ -613,7 +614,7 @@ export default function AdminContent() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-[#3d3d3d]">Bedrijf Bewerken</h3>
+                <h3 className="text-xl font-bold text-[#3d3d3d]">{t('modals.editTitle')}</h3>
                 <button onClick={closeEditModal} className="p-2 hover:bg-gray-100 rounded-full">
                   <X size={20} className="text-gray-500" />
                 </button>
@@ -621,7 +622,7 @@ export default function AdminContent() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Bedrijfsnaam</label>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">{t('modals.companyName')}</label>
                   <input
                     type="text"
                     value={editForm.name}
@@ -631,7 +632,7 @@ export default function AdminContent() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Location ID</label>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">{t('table.locationId')}</label>
                   <input
                     type="text"
                     value={editForm.locationId}
@@ -641,15 +642,15 @@ export default function AdminContent() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Update Kiyoh Token</label>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">{t('modals.updateToken')}</label>
                   <input
                     type="text"
                     value={editForm.apiToken}
                     onChange={(e) => setEditForm({ ...editForm, apiToken: e.target.value })}
                     className="kiyoh-input w-full font-mono text-sm"
-                    placeholder="Laat leeg om niet te wijzigen"
+                    placeholder="Leave empty to keep current"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Vul alleen in als u een nieuwe token wilt instellen.</p>
+                  <p className="text-xs text-gray-500 mt-1">Only fill if you want to set a new token.</p>
                 </div>
 
                 {error && (
@@ -661,11 +662,11 @@ export default function AdminContent() {
 
                 <div className="flex gap-3 pt-2">
                   <button onClick={closeEditModal} className="flex-1 btn-secondary">
-                    Annuleren
+                    {t('actions.cancel')}
                   </button>
                   <button onClick={handleSaveCompany} disabled={savingCompany} className="flex-1 btn-kiyoh justify-center disabled:opacity-50">
                     {savingCompany ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
-                    {savingCompany ? "Opslaan..." : "Opslaan"}
+                    {savingCompany ? t('actions.save') : t('actions.save')}
                   </button>
                 </div>
               </div>
