@@ -657,6 +657,4 @@ export default function AdminContent() {
           </motion.div>
         </div>
       )}
-    </div>
-  );
-}
+
