@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { LayoutDashboard, Star, Send, Settings, LogOut, Menu, X, Shield } from "lucide-react";
 import NotificationCenter from "./notification-center";
+import { ThemeToggle } from "./theme-toggle";
 
 export default function Header() {
   const pathname = usePathname();
@@ -33,9 +34,9 @@ export default function Header() {
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-3">
             <div className="w-10 h-10 relative">
-              <Image 
-                src="/kiyoh-logo.png" 
-                alt="Kiyoh" 
+              <Image
+                src="/kiyoh-logo.png"
+                alt="Kiyoh"
                 fill
                 className="object-contain"
               />
@@ -51,26 +52,24 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive(item.href)
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive(item.href)
                       ? "bg-[#6bbc4a]/10 text-[#6bbc4a]"
                       : "text-gray-600 hover:bg-gray-100 hover:text-[#3d3d3d]"
-                  }`}
+                    }`}
                 >
                   <Icon size={18} />
                   {item.label}
                 </Link>
               );
             })}
-            
+
             {isSuperAdmin && (
               <Link
                 href="/admin"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isActive("/admin")
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive("/admin")
                     ? "bg-[#eb5b0c]/10 text-[#eb5b0c]"
                     : "text-gray-600 hover:bg-gray-100 hover:text-[#3d3d3d]"
-                }`}
+                  }`}
               >
                 <Shield size={18} />
                 Admin
@@ -82,12 +81,12 @@ export default function Header() {
           <div className="flex items-center gap-3">
             {/* Notification Center */}
             <NotificationCenter />
-            
+
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-[#3d3d3d]">{session.user?.name || session.user?.email}</p>
               <p className="text-xs text-gray-500">{(session.user as any)?.companyName || "No company"}</p>
             </div>
-            
+
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="btn-secondary !p-2 hidden sm:flex"
@@ -117,33 +116,31 @@ export default function Header() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                      isActive(item.href)
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive(item.href)
                         ? "bg-[#6bbc4a]/10 text-[#6bbc4a]"
                         : "text-gray-600 hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     <Icon size={20} />
                     {item.label}
                   </Link>
                 );
               })}
-              
+
               {isSuperAdmin && (
                 <Link
                   href="/admin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    isActive("/admin")
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive("/admin")
                       ? "bg-[#eb5b0c]/10 text-[#eb5b0c]"
                       : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <Shield size={20} />
                   Admin
                 </Link>
               )}
-              
+
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 w-full"
