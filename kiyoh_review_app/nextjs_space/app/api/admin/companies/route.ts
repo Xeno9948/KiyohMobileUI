@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// PATCH - Toggle AI for a company
+// PATCH - Update company details (AI, Name, API Token)
 export async function PATCH(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -54,26 +54,46 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const { companyId, aiEnabled } = await req.json();
+    const body = await req.json();
+    const { companyId, aiEnabled, name, locationId, apiToken, baseUrl } = body;
 
-    if (!companyId || typeof aiEnabled !== "boolean") {
-      return NextResponse.json({ error: "Company ID and aiEnabled are required" }, { status: 400 });
+    if (!companyId) {
+      return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
+    }
+
+    // Build update object dynamically
+    const updateData: any = {};
+    if (typeof aiEnabled === "boolean") updateData.aiEnabled = aiEnabled;
+    if (name) updateData.name = name;
+    if (locationId) updateData.locationId = locationId;
+    if (apiToken) updateData.apiToken = apiToken;
+    if (baseUrl) updateData.baseUrl = baseUrl;
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }
 
     const company = await prisma.company.update({
       where: { id: companyId },
-      data: { aiEnabled }
+      data: updateData
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       company: {
         id: company.id,
         name: company.name,
-        aiEnabled: company.aiEnabled
+        aiEnabled: company.aiEnabled,
+        locationId: company.locationId
       }
     });
   } catch (error: any) {
+    // Handle unique constraint violation (e.g. duplicate locationId)
+    if (error.code === "P2002") {
+      return NextResponse.json({
+        error: "A company with this Location ID already exists"
+      }, { status: 400 });
+    }
     return NextResponse.json({ error: "Failed to update company", details: error?.message }, { status: 500 });
   }
 }
