@@ -1,14 +1,14 @@
 {
     "Header": {
-        "dashboard": "Dashboard",
-        "reviews": "Reviews",
-        "invites": "Invites",
-        "settings": "Settings",
-        "admin": "Admin",
-        "profile": "Profile",
-        "logout": "Logout"
+        "dashboard": "Tablero",
+        "reviews": "Reseñas",
+        "invites": "Invitaciones",
+        "settings": "Ajustes",
+        "admin": "Administrador",
+        "profile": "Perfil",
+        "logout": "Cerrar sesión"
     },
     "ThemeToggle": {
-        "toggle": "Toggle theme"
+        "toggle": "Cambiar tema"
     }
 }
