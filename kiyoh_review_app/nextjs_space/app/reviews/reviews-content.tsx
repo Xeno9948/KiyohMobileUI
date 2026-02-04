@@ -1,0 +1,704 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Star, User, MapPin, Calendar, MessageSquare, RefreshCw, AlertCircle, ChevronLeft, ChevronRight, Reply, Flag, Edit3, X, Send, Loader2, CheckCircle, Sparkles } from "lucide-react";
+
+interface Review {
+  reviewId?: string;
+  reviewAuthor?: string;
+  city?: string;
+  rating?: number;
+  dateSince?: string;
+  updatedSince?: string;
+  reviewLanguage?: string;
+  reviewContent?: Array<{
+    questionGroup?: string;
+    questionType?: string;
+    rating?: string | number | boolean;
+    questionTranslation?: string;
+  }>;
+  reviewComments?: string;
+}
+
+interface ReviewsResponse {
+  reviews?: Review[];
+  numberReviews?: number;
+  averageRating?: number;
+}
+
+type ModalType = "reply" | "changeRequest" | "abuse" | null;
+
+export default function ReviewsContent() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [orderBy, setOrderBy] = useState("CREATE_DATE");
+  const [sortOrder, setSortOrder] = useState("DESC");
+  const [ratingFilter, setRatingFilter] = useState<number | null>(null);
+  const perPage = 20;
+
+  // Moderation state
+  const [modalType, setModalType] = useState<ModalType>(null);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyType, setReplyType] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
+  const [sendEmail, setSendEmail] = useState(true);
+  const [abuseReason, setAbuseReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState(true);
+
+  // Fetch AI status
+  useEffect(() => {
+    const checkAiStatus = async () => {
+      try {
+        const res = await fetch("/api/company");
+        const data = await res.json();
+        if (data.company?.aiEnabled !== undefined) {
+          setAiEnabled(data.company.aiEnabled);
+        }
+      } catch (err) {
+        console.error("Failed to fetch AI status:", err);
+      }
+    };
+    checkAiStatus();
+  }, []);
+
+  const fetchReviews = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`/api/kiyoh/reviews?limit=${perPage * page}&orderBy=${orderBy}&sortOrder=${sortOrder}`);
+      
+      if (!res.ok) throw new Error("Failed to fetch reviews");
+
+      const data: ReviewsResponse = await res.json();
+      setReviews(data?.reviews ?? []);
+      setTotalReviews(data?.numberReviews ?? 0);
+    } catch (err) {
+      setError("Kan reviews niet laden");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, [page, orderBy, sortOrder]);
+
+  const startIndex = (page - 1) * perPage;
+  let filteredReviews = reviews?.slice?.(startIndex, startIndex + perPage) ?? [];
+  
+  if (ratingFilter !== null) {
+    filteredReviews = filteredReviews.filter(r => Math.ceil((r.rating || 0) / 2) === ratingFilter);
+  }
+
+  const totalPages = Math.ceil(totalReviews / perPage) || 1;
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "Unknown";
+    try {
+      return new Date(dateStr).toLocaleDateString("nl-NL", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const getReviewText = (review: Review, type: string) => {
+    const content = review?.reviewContent?.find?.((c) => c?.questionGroup === type);
+    return content?.rating?.toString?.() ?? "";
+  };
+
+  const getRatingColor = (rating: number) => {
+    if (rating >= 8) return "#6bbc4a";
+    if (rating >= 6) return "#ffcc01";
+    if (rating >= 4) return "#eb5b0c";
+    return "#e53935";
+  };
+
+  const openModal = (type: ModalType, review: Review) => {
+    setSelectedReview(review);
+    setModalType(type);
+    setReplyText("");
+    setAbuseReason("");
+    setError("");
+    setSuccessMessage("");
+  };
+
+  const closeModal = () => {
+    setModalType(null);
+    setSelectedReview(null);
+    setReplyText("");
+    setAbuseReason("");
+    setError("");
+  };
+
+  const generateAIResponse = async () => {
+    if (!selectedReview) return;
+    
+    setGeneratingAI(true);
+    setError("");
+    
+    try {
+      const reviewText = getReviewText(selectedReview, "DEFAULT_OPINION") || 
+                         getReviewText(selectedReview, "DEFAULT_ONELINER") || 
+                         "Geen tekst";
+      
+      const res = await fetch("/api/ai/generate-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reviewAuthor: selectedReview.reviewAuthor,
+          rating: selectedReview.rating,
+          reviewText,
+        }),
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Kon AI reactie niet genereren");
+      }
+
+      if (data.suggestedResponse) {
+        setReplyText(data.suggestedResponse);
+      } else {
+        throw new Error("Geen AI reactie ontvangen");
+      }
+    } catch (err: any) {
+      setError(err.message || "AI generatie mislukt");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
+  const handleReply = async () => {
+    if (!selectedReview?.reviewId || !replyText.trim()) {
+      setError("Vul een reactie in");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/kiyoh/moderation/response", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reviewId: selectedReview.reviewId,
+          response: replyText.trim(),
+          responseType: replyType,
+          sendEmail,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Kon reactie niet verzenden");
+
+      setSuccessMessage("Reactie succesvol verzonden!");
+      setTimeout(() => { closeModal(); fetchReviews(); }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Kon reactie niet verzenden");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleChangeRequest = async () => {
+    if (!selectedReview?.reviewId) return;
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/kiyoh/moderation/changerequest", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewId: selectedReview.reviewId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Kon verzoek niet versturen");
+
+      setSuccessMessage("Wijzigingsverzoek verzonden!");
+      setTimeout(() => closeModal(), 1500);
+    } catch (err: any) {
+      setError(err.message || "Kon verzoek niet versturen");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAbuseReport = async () => {
+    if (!selectedReview?.reviewId || !abuseReason.trim()) {
+      setError("Vul een reden in");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/kiyoh/moderation/abuse", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reviewId: selectedReview.reviewId,
+          abuseReason: abuseReason.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Kon melding niet versturen");
+
+      setSuccessMessage("Melding succesvol verzonden!");
+      setTimeout(() => closeModal(), 1500);
+    } catch (err: any) {
+      setError(err.message || "Kon melding niet versturen");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#3d3d3d]">Reviews</h1>
+          <p className="text-gray-500">{totalReviews?.toLocaleString?.("nl-NL") ?? 0} beoordelingen</p>
+        </div>
+
+        <button onClick={fetchReviews} className="btn-kiyoh">
+          <RefreshCw size={18} />
+          Vernieuwen
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="kiyoh-card p-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm font-medium text-gray-600">Filters</span>
+          
+          {/* Star Rating Filter */}
+          <div className="flex items-center gap-1">
+            {[5, 4, 3, 2, 1].map((stars) => (
+              <button
+                key={stars}
+                onClick={() => setRatingFilter(ratingFilter === stars ? null : stars)}
+                className={`filter-tag ${ratingFilter === stars ? 'active' : ''}`}
+              >
+                <Star size={14} fill={ratingFilter === stars ? "white" : "#ffcc01"} color={ratingFilter === stars ? "white" : "#ffcc01"} />
+                {stars}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1"></div>
+
+          {/* Sort Options */}
+          <select
+            value={orderBy}
+            onChange={(e) => { setOrderBy(e.target.value); setPage(1); }}
+            className="kiyoh-select"
+          >
+            <option value="CREATE_DATE">Datum (nieuw - oud)</option>
+            <option value="UPDATE_DATE">Laatst bijgewerkt</option>
+            <option value="RATING">Beoordeling</option>
+          </select>
+
+          <select
+            value={sortOrder}
+            onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
+            className="kiyoh-select"
+          >
+            <option value="DESC">Aflopend</option>
+            <option value="ASC">Oplopend</option>
+          </select>
+        </div>
+      </div>
+
+      {error && !modalType && (
+        <div className="kiyoh-card p-4 border-l-4 border-[#eb5b0c] flex items-center gap-3">
+          <AlertCircle className="text-[#eb5b0c]" size={20} />
+          <p className="text-gray-700">{error}</p>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <RefreshCw className="animate-spin text-[#6bbc4a]" size={48} />
+        </div>
+      ) : (
+        <>
+          <div className="space-y-4">
+            {filteredReviews?.length === 0 ? (
+              <div className="kiyoh-card p-8 text-center">
+                <p className="text-gray-500">Geen reviews gevonden</p>
+              </div>
+            ) : (
+              filteredReviews?.map?.((review, index) => (
+                <motion.div
+                  key={review?.reviewId ?? index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="review-card"
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Rating Badge */}
+                    <div 
+                      className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                      style={{ background: getRatingColor(review?.rating || 0) }}
+                    >
+                      {review?.rating || 0}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      {/* Header */}
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
+                        <span className="font-semibold text-[#3d3d3d]">{review?.reviewAuthor || "Anoniem"}</span>
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              size={16}
+                              fill={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
+                              color={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
+                            />
+                          ))}
+                        </div>
+                        {review?.city && (
+                          <span className="flex items-center gap-1 text-sm text-gray-500">
+                            <MapPin size={14} />
+                            {review.city}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 text-sm text-gray-500">
+                          <Calendar size={14} />
+                          {formatDate(review?.dateSince)}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      {getReviewText(review, "DEFAULT_ONELINER") && (
+                        <p className="text-[#3d3d3d] font-medium mb-1">
+                          &ldquo;{getReviewText(review, "DEFAULT_ONELINER")}&rdquo;
+                        </p>
+                      )}
+
+                      {getReviewText(review, "DEFAULT_OPINION") && (
+                        <p className="text-gray-600 text-sm">
+                          {getReviewText(review, "DEFAULT_OPINION")}
+                        </p>
+                      )}
+
+                      {/* Business Response */}
+                      {review?.reviewComments && (
+                        <div className="response-badge mt-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <MessageSquare className="text-[#6bbc4a]" size={14} />
+                            <span className="text-[#6bbc4a] font-medium text-sm">Reactie bedrijf</span>
+                          </div>
+                          <p className="text-gray-600 text-sm">{review.reviewComments}</p>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                        <button
+                          onClick={() => openModal("reply", review)}
+                          className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
+                        >
+                          <Reply size={14} />
+                          Reageren
+                        </button>
+                        <button
+                          onClick={() => openModal("changeRequest", review)}
+                          className="filter-tag hover:border-[#ffcc01] hover:text-[#eb5b0c]"
+                        >
+                          <Edit3 size={14} />
+                          Wijziging vragen
+                        </button>
+                        <button
+                          onClick={() => openModal("abuse", review)}
+                          className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
+                        >
+                          <Flag size={14} />
+                          Melden
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="btn-secondary !p-3 disabled:opacity-50"
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) pageNum = i + 1;
+                else if (page <= 3) pageNum = i + 1;
+                else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
+                else pageNum = page - 2 + i;
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`w-10 h-10 rounded-lg font-medium transition-all ${
+                      page === pageNum
+                        ? "bg-[#6bbc4a] text-white"
+                        : "btn-secondary"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="btn-secondary !p-3 disabled:opacity-50"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
+
+          <p className="text-center text-gray-400 text-sm">
+            {startIndex + 1} - {Math.min(startIndex + perPage, totalReviews)} van {totalReviews} reviews
+          </p>
+        </>
+      )}
+
+      {/* Moderation Modals */}
+      <AnimatePresence>
+        {modalType && selectedReview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                <h3 className="text-xl font-bold text-[#3d3d3d]">
+                  {modalType === "reply" && "Reageren op review"}
+                  {modalType === "changeRequest" && "Wijziging aanvragen"}
+                  {modalType === "abuse" && "Review melden"}
+                </h3>
+                <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-full transition-all">
+                  <X size={20} className="text-gray-500" />
+                </button>
+              </div>
+
+              {/* Review Preview */}
+              <div className="p-5 bg-gray-50 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
+                    style={{ background: getRatingColor(selectedReview.rating || 0) }}
+                  >
+                    {selectedReview.rating}
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#3d3d3d]">{selectedReview.reviewAuthor || "Anoniem"}</p>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} size={12} fill={star <= Math.round((selectedReview.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"} color={star <= Math.round((selectedReview.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {getReviewText(selectedReview, "DEFAULT_ONELINER") && (
+                  <p className="text-gray-600 text-sm mt-2 italic">&ldquo;{getReviewText(selectedReview, "DEFAULT_ONELINER")}&rdquo;</p>
+                )}
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-5 space-y-4">
+                {successMessage ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <CheckCircle className="text-[#6bbc4a] mb-3" size={48} />
+                    <p className="text-lg font-medium text-[#3d3d3d]">{successMessage}</p>
+                  </div>
+                ) : (
+                  <>
+                    {error && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600 text-sm">
+                        <AlertCircle size={16} />
+                        {error}
+                      </div>
+                    )}
+
+                    {modalType === "reply" && (
+                      <>
+                        {/* AI Generate Button */}
+                        {aiEnabled && (
+                          <button
+                            onClick={generateAIResponse}
+                            disabled={generatingAI}
+                            className="w-full py-3 px-4 bg-gradient-to-r from-[#6bbc4a] to-[#8fd96e] text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-70"
+                          >
+                            {generatingAI ? (
+                              <>
+                                <Loader2 className="animate-spin" size={18} />
+                                AI genereert reactie...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles size={18} />
+                                Genereer reactie met AI
+                              </>
+                            )}
+                          </button>
+                        )}
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Uw reactie</label>
+                          <textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder={aiEnabled ? "Klik op 'Genereer reactie met AI' of schrijf zelf..." : "Schrijf uw reactie op deze review..."}
+                            rows={4}
+                            className="kiyoh-input resize-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Type reactie</label>
+                          <div className="flex gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setReplyType("PUBLIC")}
+                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
+                                replyType === "PUBLIC" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              }`}
+                            >
+                              Openbaar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setReplyType("PRIVATE")}
+                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
+                                replyType === "PRIVATE" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              }`}
+                            >
+                              Privé
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {replyType === "PUBLIC" ? "Reactie is zichtbaar voor iedereen" : "Reactie wordt alleen naar de reviewer gestuurd"}
+                          </p>
+                        </div>
+
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={sendEmail}
+                            onChange={(e) => setSendEmail(e.target.checked)}
+                            className="w-4 h-4 text-[#6bbc4a] border-gray-300 rounded focus:ring-[#6bbc4a]"
+                          />
+                          <span className="text-sm text-gray-700">E-mail notificatie sturen naar reviewer</span>
+                        </label>
+
+                        <button
+                          onClick={handleReply}
+                          disabled={submitting || !replyText.trim()}
+                          className="w-full btn-kiyoh justify-center disabled:opacity-50"
+                        >
+                          {submitting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+                          {submitting ? "Verzenden..." : "Reactie verzenden"}
+                        </button>
+                      </>
+                    )}
+
+                    {modalType === "changeRequest" && (
+                      <>
+                        <div className="p-4 bg-[#ffcc01]/10 rounded-xl">
+                          <p className="text-gray-700 text-sm">
+                            Er wordt een e-mail gestuurd naar <strong>{selectedReview.reviewAuthor || "de reviewer"}</strong> met het verzoek om de review bij te werken.
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={handleChangeRequest}
+                          disabled={submitting}
+                          className="w-full py-3 px-4 bg-[#ffcc01] hover:bg-[#e6b800] text-[#3d3d3d] font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                        >
+                          {submitting ? <Loader2 className="animate-spin" size={18} /> : <Edit3 size={18} />}
+                          {submitting ? "Verzenden..." : "Wijziging aanvragen"}
+                        </button>
+                      </>
+                    )}
+
+                    {modalType === "abuse" && (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Reden voor melding</label>
+                          <textarea
+                            value={abuseReason}
+                            onChange={(e) => setAbuseReason(e.target.value)}
+                            placeholder="Leg uit waarom deze review gemeld moet worden (bijv. ongepaste inhoud, nep review, spam)..."
+                            rows={4}
+                            className="kiyoh-input resize-none"
+                          />
+                        </div>
+
+                        <div className="p-4 bg-[#eb5b0c]/10 rounded-xl">
+                          <p className="text-gray-700 text-sm">
+                            <strong>Let op:</strong> Meldingen worden beoordeeld door het Kiyoh moderatieteam.
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={handleAbuseReport}
+                          disabled={submitting || !abuseReason.trim()}
+                          className="w-full py-3 px-4 bg-[#eb5b0c] hover:bg-[#d44f08] text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                        >
+                          {submitting ? <Loader2 className="animate-spin" size={18} /> : <Flag size={18} />}
+                          {submitting ? "Verzenden..." : "Melding verzenden"}
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

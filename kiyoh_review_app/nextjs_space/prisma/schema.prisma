@@ -1,0 +1,90 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/kiyoh_review_app/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Company {
+  id            String    @id @default(cuid())
+  name          String
+  locationId    String
+  apiToken      String
+  tenantId      String    @default("98")
+  baseUrl       String    @default("https://www.kiyoh.com")
+  isActive      Boolean   @default(true)
+  aiEnabled     Boolean   @default(true)
+  strongPoints  String?   // JSON array of AI-detected strong points
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  users         User[]
+  invites       ReviewInvite[]
+  notifications ReviewNotification[]
+
+  @@unique([locationId])
+  @@index([locationId])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          String    @default("user")
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id])
+  lastLoginAt   DateTime?
+  resetToken    String?
+  resetTokenExp DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  invites       ReviewInvite[]
+
+  @@index([companyId])
+  @@index([role])
+}
+
+model ReviewInvite {
+  id            String    @id @default(cuid())
+  email         String
+  firstName     String?
+  lastName      String?
+  refCode       String?
+  language      String    @default("en")
+  delay         Int       @default(0)
+  status        String    @default("sent")
+  createdAt     DateTime  @default(now())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id])
+
+  @@index([email])
+  @@index([createdAt])
+  @@index([companyId])
+}
+
+model ReviewNotification {
+  id                String    @id @default(cuid())
+  reviewId          String
+  companyId         String
+  company           Company   @relation(fields: [companyId], references: [id])
+  reviewAuthor      String?
+  reviewRating      Float?
+  reviewText        String?
+  reviewDate        DateTime?
+  suggestedResponse String?
+  status            String    @default("pending") // pending, approved, dismissed
+  isRead            Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([reviewId, companyId])
+  @@index([companyId])
+  @@index([status])
+  @@index([createdAt])
+}
