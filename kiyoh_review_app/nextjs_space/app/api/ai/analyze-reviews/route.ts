@@ -55,29 +55,75 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ strongPoints: [] });
     }
 
-    // Use Abacus AI LLM API to analyze strong points
-    const llmResponse = await fetch('https://medici-holding.abacus.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-mini',
-        messages: [
-          {
-            role: "system",
-            content: `Je bent een expert in het analyseren van klantreviews. Analyseer de volgende reviews en identificeer de 3 belangrijkste sterke punten van dit bedrijf. Geef korte, bondige punten in het Nederlands (max 3-4 woorden per punt). Geef alleen de punten als JSON array van strings, zonder extra uitleg.`,
-          },
-          {
-            role: "user",
-            content: `Reviews:\n${reviewTexts.join("\n\n")}`,
-          },
-        ],
-        temperature: 0.3,
-        max_tokens: 500,
-      }),
-    });
+    // Fetch Global System Settings
+    const settings = await prisma.systemSettings.findUnique({ where: { id: "global" } });
+    const aiProvider = settings?.aiProvider || "openai";
+    const aiApiKey = settings?.aiApiKey || process.env.ABACUSAI_API_KEY; // Fallback for backwards compatibility if needed
+    const aiModel = settings?.aiModel || "gpt-4-turbo";
+
+    if (!aiApiKey) {
+      console.error("No AI API Key found in settings or env");
+      return NextResponse.json({ error: "AI configuration missing" }, { status: 500 });
+    }
+
+    let llmResponse: Response;
+    const systemPrompt = `Je bent een expert in het analyseren van klantreviews. Analyseer de volgende reviews en identificeer de 3 belangrijkste sterke punten van dit bedrijf. Geef korte, bondige punten in het Nederlands (max 3-4 woorden per punt). Geef alleen de punten als JSON array van strings, zonder extra uitleg.`;
+    const userPrompt = `Reviews:\n${reviewTexts.join("\n\n")}`;
+
+    if (aiProvider === "anthropic") {
+      // Anthropic API calls
+      llmResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': aiApiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: aiModel || "claude-3-opus-20240229",
+          max_tokens: 500,
+          messages: [
+            { role: "user", content: `${systemPrompt}\n\n${userPrompt}` } // Claude system prompts are separate usually, but this works for simple cases
+          ]
+        })
+      });
+    } else if (aiProvider === "abacus") {
+      // Abacus API calls (Legacy support matches user env)
+      llmResponse = await fetch('https://medici-holding.abacus.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${aiApiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4.1-mini', // Abacus might map this specifically
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          temperature: 0.3,
+          max_tokens: 500,
+        }),
+      });
+    } else {
+      // Default: OpenAI (works for most OpenAI-compatible endpoints)
+      llmResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${aiApiKey}`,
+        },
+        body: JSON.stringify({
+          model: aiModel,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          temperature: 0.3,
+          max_tokens: 500,
+        }),
+      });
+    }
 
     if (!llmResponse.ok) {
       console.error('LLM API error:', await llmResponse.text());
@@ -85,7 +131,14 @@ export async function POST(request: NextRequest) {
     }
 
     const llmData = await llmResponse.json();
-    const content = llmData.choices?.[0]?.message?.content || "[]";
+    let content = "";
+
+    if (aiProvider === "anthropic") {
+      content = llmData.content[0]?.text || "[]";
+    } else {
+      // OpenAI / Abacus style response
+      content = llmData.choices?.[0]?.message?.content || "[]";
+    }
 
     let strongPoints: string[] = [];
     try {
