@@ -287,8 +287,8 @@ export default function AdminContent() {
                   key={provider}
                   onClick={() => setGlobalSettings({ ...globalSettings, aiProvider: provider })}
                   className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all border ${globalSettings.aiProvider === provider
-                      ? "bg-[#6bbc4a] border-[#6bbc4a] text-white shadow-lg shadow-green-500/20"
-                      : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                    ? "bg-[#6bbc4a] border-[#6bbc4a] text-white shadow-lg shadow-green-500/20"
+                    : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                     }`}
                 >
                   {provider.charAt(0).toUpperCase() + provider.slice(1)}
