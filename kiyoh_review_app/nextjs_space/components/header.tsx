@@ -8,6 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 import { LayoutDashboard, Star, Send, Settings, LogOut, Menu, X, Shield } from "lucide-react";
 import NotificationCenter from "./notification-center";
 import { ThemeToggle } from "./theme-toggle";
+import { LanguageSwitcher } from "./language-switcher";
 
 export default function Header() {
   const pathname = usePathname();
@@ -53,8 +54,8 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive(item.href)
-                      ? "bg-[#6bbc4a]/10 text-[#6bbc4a]"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-[#3d3d3d]"
+                    ? "bg-[#6bbc4a]/10 text-[#6bbc4a]"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-[#3d3d3d]"
                     }`}
                 >
                   <Icon size={18} />
@@ -67,8 +68,8 @@ export default function Header() {
               <Link
                 href="/admin"
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive("/admin")
-                    ? "bg-[#eb5b0c]/10 text-[#eb5b0c]"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-[#3d3d3d]"
+                  ? "bg-[#eb5b0c]/10 text-[#eb5b0c]"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-[#3d3d3d]"
                   }`}
               >
                 <Shield size={18} />
@@ -81,6 +82,9 @@ export default function Header() {
           <div className="flex items-center gap-3">
             {/* Notification Center */}
             <NotificationCenter />
+
+            <ThemeToggle />
+            <LanguageSwitcher />
 
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-[#3d3d3d]">{session.user?.name || session.user?.email}</p>
@@ -117,8 +121,8 @@ export default function Header() {
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive(item.href)
-                        ? "bg-[#6bbc4a]/10 text-[#6bbc4a]"
-                        : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-[#6bbc4a]/10 text-[#6bbc4a]"
+                      : "text-gray-600 hover:bg-gray-100"
                       }`}
                   >
                     <Icon size={20} />
@@ -132,8 +136,8 @@ export default function Header() {
                   href="/admin"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive("/admin")
-                      ? "bg-[#eb5b0c]/10 text-[#eb5b0c]"
-                      : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-[#eb5b0c]/10 text-[#eb5b0c]"
+                    : "text-gray-600 hover:bg-gray-100"
                     }`}
                 >
                   <Shield size={20} />
