@@ -87,3 +87,11 @@ model ReviewNotification {
   @@index([status])
   @@index([createdAt])
 }
+
+model SystemSettings {
+  id              String   @id @default("global")
+  aiProvider      String   @default("openai") // openai, anthropic, abacus
+  aiApiKey        String?
+  aiModel         String   @default("gpt-4-turbo")
+  updatedAt       DateTime @updatedAt
+}
