@@ -51,6 +51,44 @@ export default function AdminContent() {
   const [savingCompany, setSavingCompany] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", locationId: "", apiToken: "" });
 
+  // Global AI Settings
+  const [globalSettings, setGlobalSettings] = useState({ aiProvider: "openai", aiApiKey: "", aiModel: "gpt-4-turbo" });
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  const fetchGlobalSettings = async () => {
+    try {
+      const res = await fetch("/api/admin/settings");
+      if (res.ok) {
+        const data = await res.json();
+        setGlobalSettings(data.settings);
+      }
+    } catch (err) {
+      console.error("Failed to fetch settings:", err);
+    }
+  };
+
+  const saveGlobalSettings = async () => {
+    setSavingSettings(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(globalSettings),
+      });
+      if (res.ok) {
+        // Show success maybe?
+      }
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGlobalSettings();
+  }, []);
+
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -225,44 +263,6 @@ export default function AdminContent() {
       year: "numeric",
     });
   };
-
-  return (
-  const [globalSettings, setGlobalSettings] = useState({ aiProvider: "openai", aiApiKey: "", aiModel: "gpt-4-turbo" });
-  const [savingSettings, setSavingSettings] = useState(false);
-
-  const fetchGlobalSettings = async () => {
-    try {
-      const res = await fetch("/api/admin/settings");
-      if (res.ok) {
-        const data = await res.json();
-        setGlobalSettings(data.settings);
-      }
-    } catch (err) {
-      console.error("Failed to fetch settings:", err);
-    }
-  };
-
-  const saveGlobalSettings = async () => {
-    setSavingSettings(true);
-    try {
-      const res = await fetch("/api/admin/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(globalSettings),
-      });
-      if (res.ok) {
-        // Show success maybe?
-      }
-    } catch (err) {
-      console.error("Failed to save settings:", err);
-    } finally {
-      setSavingSettings(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchGlobalSettings();
-  }, []);
 
   return (
     <div className="space-y-6">
