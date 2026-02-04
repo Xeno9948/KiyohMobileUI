@@ -4,7 +4,7 @@ import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Check, ChevronDown, Globe } from "lucide-react";
-import { locales } from "@/i18n";
+import { locales } from "@/config";
 
 export function LanguageSwitcher() {
     const locale = useLocale();
