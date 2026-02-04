@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
     // Get review stats for each company
     const usersWithStats = await Promise.all(
-      users.map(async (user) => {
+      users.map(async (user: any) => {
         let reviewCount = 0;
         
         if (user.company) {
