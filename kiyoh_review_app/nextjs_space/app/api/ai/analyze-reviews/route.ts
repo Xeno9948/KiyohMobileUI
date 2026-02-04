@@ -55,14 +55,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ strongPoints: [] });
     }
 
-    // Fetch Global System Settings
-    const settings = await prisma.systemSettings.findUnique({ where: { id: "global" } });
-    const aiProvider = settings?.aiProvider || "openai";
-    const aiApiKey = settings?.aiApiKey || process.env.ABACUSAI_API_KEY; // Fallback for backwards compatibility if needed
-    const aiModel = settings?.aiModel || "gpt-4-turbo";
+    // Use Environment Variables for AI Config
+    const aiProvider = process.env.AI_PROVIDER || "abacus"; // Default to old behavior if not set
+    const aiApiKey = process.env.AI_API_KEY || process.env.ABACUSAI_API_KEY;
+    const aiModel = process.env.AI_MODEL || "gpt-4-turbo";
 
     if (!aiApiKey) {
-      console.error("No AI API Key found in settings or env");
+      console.error("No AI API Key found in env vars");
       return NextResponse.json({ error: "AI configuration missing" }, { status: 500 });
     }
 
