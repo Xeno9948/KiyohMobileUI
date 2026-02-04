@@ -626,7 +626,7 @@ export default function AdminContent() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">Update API Token</label>
+                <label className="text-sm font-medium text-gray-700 block mb-1">Update Kiyoh Token</label>
                 <input
                   type="text"
                   value={editForm.apiToken}
