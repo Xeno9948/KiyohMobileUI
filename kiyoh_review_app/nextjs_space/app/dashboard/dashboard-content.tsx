@@ -29,10 +29,25 @@ interface Statistics {
 
 // ... existing code ...
 
+
+interface Review {
+  reviewContent?: Array<{ questionGroup?: string; rating?: number }>;
+  rating?: number;
+  reviewAuthor?: string;
+}
+
 export default function DashboardContent() {
   const t = useTranslations("Dashboard");
   const { locale } = useLanguage();
   const [stats, setStats] = useState<Statistics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [strongPoints, setStrongPoints] = useState<string[]>([]);
+  const [loadingStrongPoints, setLoadingStrongPoints] = useState(false);
+  const [recentReview, setRecentReview] = useState<Review | null>(null);
+  const [needsSetup, setNeedsSetup] = useState(false);
+
+
+
 
   // ... fetchStrongPoints ...
   const fetchStrongPoints = async () => {
@@ -79,6 +94,42 @@ export default function DashboardContent() {
       setLoadingStrongPoints(false);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/kiyoh/statistics");
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+
+          // Check for recent review
+          if (data.viewReviewUrl) {
+            try {
+              const reviewsRes = await fetch("/api/kiyoh/reviews?limit=1");
+              if (reviewsRes.ok) {
+                const reviewsData = await reviewsRes.json();
+                if (reviewsData.reviews && reviewsData.reviews.length > 0) {
+                  setRecentReview(reviewsData.reviews[0]);
+                }
+              }
+            } catch (err) {
+              console.error("Failed to fetch recent review", err);
+            }
+          }
+        } else {
+          // Handle 404 or other errors
+          if (res.status === 404) setNeedsSetup(true);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+    fetchStrongPoints();
+  }, [locale]);
 
   // ...
 
