@@ -53,7 +53,7 @@ export default function DashboardContent() {
   const fetchStrongPoints = async () => {
     try {
       // First try to get cached strong points
-      const cachedRes = await fetch("/api/ai/analyze-reviews");
+      const cachedRes = await fetch(`/api/ai/analyze-reviews?language=${locale}`);
       const cachedData = await cachedRes.json();
 
       if (cachedData.strongPoints && cachedData.strongPoints.length > 0) {

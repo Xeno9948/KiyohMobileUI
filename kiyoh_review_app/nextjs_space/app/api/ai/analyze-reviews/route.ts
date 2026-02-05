@@ -129,6 +129,22 @@ OUTPUT FORMAT: Return ONLY a raw JSON array of strings (e.g., ["Point 1", "Point
       content = completion.choices[0]?.message?.content || "[]";
     }
 
+    let currentData: Record<string, string[]> = {};
+    try {
+      const dbString = user.company.strongPoints;
+      if (dbString) {
+        const parsed = JSON.parse(dbString);
+        if (Array.isArray(parsed)) {
+          // Migration: Legacy array is assumed to be 'nl' (Dutch)
+          currentData = { nl: parsed };
+        } else {
+          currentData = parsed;
+        }
+      }
+    } catch (e) {
+      // Ignore parse errors, start fresh
+    }
+
     let strongPoints: string[] = [];
     try {
       // Sanitize response to ensure it's JSON
@@ -147,10 +163,13 @@ OUTPUT FORMAT: Return ONLY a raw JSON array of strings (e.g., ["Point 1", "Point
       strongPoints = ["Goede service", "Betrouwbaar", "Klantvriendelijk"];
     }
 
+    // Update specific language
+    currentData[language] = strongPoints;
+
     // Cache strong points in database
     await prisma.company.update({
       where: { id: user.company.id },
-      data: { strongPoints: JSON.stringify(strongPoints) },
+      data: { strongPoints: JSON.stringify(currentData) },
     });
 
     return NextResponse.json({ strongPoints });
@@ -176,10 +195,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ needsSetup: true }, { status: 400 });
     }
 
-    // Return cached strong points
-    const strongPoints = user.company.strongPoints
-      ? JSON.parse(user.company.strongPoints)
-      : null;
+    // Return cached strong points for requested language
+    const url = new URL(request.url);
+    const language = url.searchParams.get("language") || "nl";
+
+    let strongPoints: string[] | null = null;
+
+    if (user.company.strongPoints) {
+      try {
+        const parsed = JSON.parse(user.company.strongPoints);
+        if (Array.isArray(parsed)) {
+          // Legacy format - return if we assume it matches or just return it as fallback
+          // Better behavior: return only if lang is 'nl' (default), else return null to trigger regen
+          if (language === 'nl') {
+            strongPoints = parsed;
+          }
+        } else {
+          // New object format
+          strongPoints = parsed[language] || null;
+        }
+      } catch (e) {
+        console.error("Error parsing stored strong points", e);
+      }
+    }
 
     return NextResponse.json({ strongPoints });
   } catch (error) {
