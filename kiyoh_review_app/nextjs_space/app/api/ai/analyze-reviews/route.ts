@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const body = await request.json().catch(() => ({}));
+    let content = "";
     const localeParams = body.language || "nl";
 
     // Map locale code to full English name for better AI prompting
