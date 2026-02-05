@@ -7,7 +7,9 @@ import Link from "next/link";
 import Image from "next/image";
 
 // Header imports
+// Header imports
 import { useLanguage } from "@/components/language-context";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface Statistics {
   averageRating?: number;
