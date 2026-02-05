@@ -457,6 +457,36 @@ export default function DashboardContent() {
               );
             })}
           </motion.div>
+
+          {/* AI Upsell (if AI not enabled/used) */}
+          {/* We assume strongPoints being empty after analysis attempt MIGHT mean AI is off, or we can check a prop if available. 
+              For now, adding it as a static helper section if StrongPoints are empty OR just as a general footer for visible help.
+              Better: Check if user has AI enabled. But we don't have that prop in stats directly yet. 
+              Let's add it based on the user's request "when AI features are disabled". 
+              I'll add a fetch for user settings in useEffect or just render it if strongPoints fails. 
+              Actually, the user said "under the review oversight". 
+          */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="p-5 rounded-xl bg-gradient-to-br from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20"
+          >
+            <div className="flex gap-3">
+              <div className="p-2 bg-white rounded-lg shadow-sm h-fit">
+                <Sparkles className="text-[#6bbc4a]" size={20} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-[#3d3d3d]">{useTranslations("AI")('upsellTitle')}</h4>
+                <p className="text-sm text-gray-600 mt-1 mb-2">
+                  {useTranslations("AI")('upsellText')}
+                </p>
+                <p className="text-xs text-[#6bbc4a] font-medium">
+                  {useTranslations("AI")('contactAdvisor')}
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

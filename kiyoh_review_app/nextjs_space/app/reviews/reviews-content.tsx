@@ -470,8 +470,8 @@ export default function ReviewsContent() {
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
                     className={`w-10 h-10 rounded-lg font-medium transition-all ${page === pageNum
-                        ? "bg-[#6bbc4a] text-white"
-                        : "btn-secondary"
+                      ? "bg-[#6bbc4a] text-white"
+                      : "btn-secondary"
                       }`}
                   >
                     {pageNum}
@@ -567,12 +567,12 @@ export default function ReviewsContent() {
 
                     {modalType === "reply" && (
                       <>
-                        {/* AI Generate Button */}
-                        {aiEnabled && (
+                        {/* AI Generate Button or Upsell */}
+                        {aiEnabled ? (
                           <button
                             onClick={generateAIResponse}
                             disabled={generatingAI}
-                            className="w-full py-3 px-4 bg-gradient-to-r from-[#6bbc4a] to-[#8fd96e] text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-70"
+                            className="w-full py-3 px-4 bg-gradient-to-r from-[#6bbc4a] to-[#8fd96e] text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-70 mb-4"
                           >
                             {generatingAI ? (
                               <>
@@ -586,6 +586,16 @@ export default function ReviewsContent() {
                               </>
                             )}
                           </button>
+                        ) : (
+                          // AI Upsell Message in Modal
+                          <div className="mb-4 p-3 bg-gradient-to-r from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20 rounded-xl flex items-start gap-3">
+                            <Sparkles className="text-[#6bbc4a] flex-shrink-0 mt-0.5" size={16} />
+                            <div>
+                              <p className="text-sm text-[#3d3d3d] font-medium">
+                                {useTranslations("AI")('modalUpsell')}
+                              </p>
+                            </div>
+                          </div>
                         )}
 
                         <div>
@@ -700,6 +710,6 @@ export default function ReviewsContent() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </div >
   );
 }

@@ -11,6 +11,12 @@
     "ThemeToggle": {
         "toggle": "Thema wisselen"
     },
+    "AI": {
+        "upsellTitle": "Upgrade naar Kiyoh AI",
+        "upsellText": "Automatiseer uw reacties en krijg diepere inzichten met Kiyoh AI.",
+        "contactAdvisor": "Neem contact op met uw review adviseur om deze functie te activeren.",
+        "modalUpsell": "Wilt u reacties genereren met AI? Neem contact op met uw account specialist om te upgraden."
+    },
     "Invite": {
         "title": "Review Uitnodigingen",
         "subtitle": "Stuur uitnodigingen naar klanten om een review achter te laten",

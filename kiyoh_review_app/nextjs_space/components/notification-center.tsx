@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Check, X, RefreshCw, Star, MessageSquare, Clock, Sparkles, Send, AlertCircle, CheckCircle } from "lucide-react";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface Notification {
   id: string;
@@ -31,6 +32,23 @@ export default function NotificationCenter() {
   const [submitting, setSubmitting] = useState(false);
   const [actionResult, setActionResult] = useState<{ type: "success" | "error", message: string } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [aiEnabled, setAiEnabled] = useState(true);
+
+  // Fetch AI status
+  useEffect(() => {
+    const checkAiStatus = async () => {
+      try {
+        const res = await fetch("/api/company");
+        const data = await res.json();
+        if (data.company?.aiEnabled !== undefined) {
+          setAiEnabled(data.company.aiEnabled);
+        }
+      } catch (err) {
+        console.error("Failed to fetch AI status:", err);
+      }
+    };
+    checkAiStatus();
+  }, []);
 
   useEffect(() => {
     fetchNotifications();
@@ -416,12 +434,24 @@ export default function NotificationCenter() {
                   </p>
                 </div>
 
-                {/* AI Suggested Response */}
+                {/* AI Suggested Response or Upsell */}
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles size={16} className="text-[#6bbc4a]" />
-                    <span className="text-sm font-medium text-[#3d3d3d]">AI-gegenereerde reactie</span>
-                  </div>
+                  {aiEnabled ? (
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles size={16} className="text-[#6bbc4a]" />
+                      <span className="text-sm font-medium text-[#3d3d3d]">AI-gegenereerde reactie</span>
+                    </div>
+                  ) : (
+                    <div className="mb-3 p-3 bg-gradient-to-r from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20 rounded-xl flex items-start gap-3">
+                      <Sparkles className="text-[#6bbc4a] flex-shrink-0 mt-0.5" size={16} />
+                      <div>
+                        <p className="text-sm text-[#3d3d3d] font-medium">
+                          {useTranslations("AI")('modalUpsell') || "Wilt u reacties genereren met AI? Neem contact op met uw account specialist om te upgraden."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <textarea
                     value={editedResponse}
                     onChange={(e) => setEditedResponse(e.target.value)}

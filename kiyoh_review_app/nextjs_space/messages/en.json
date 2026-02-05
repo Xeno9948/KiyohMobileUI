@@ -11,6 +11,12 @@
     "ThemeToggle": {
         "toggle": "Toggle theme"
     },
+    "AI": {
+        "upsellTitle": "Upgrade to Kiyoh AI",
+        "upsellText": "Automate your review responses and get deeper insights with Kiyoh AI.",
+        "contactAdvisor": "Contact your review advisor to enable this feature.",
+        "modalUpsell": "Want to generate responses with AI? Contact your account specialist to upgrade."
+    },
     "Invite": {
         "title": "Review Invites",
         "subtitle": "Send invitations to customers to leave a review",
