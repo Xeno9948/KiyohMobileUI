@@ -1,6 +1,6 @@
 {
     "Header": {
-        "dashboard": "Armaturenbrett",
+        "dashboard": "Dashboard",
         "reviews": "Bewertungen",
         "invites": "Einladungen",
         "settings": "Einstellungen",
@@ -9,7 +9,7 @@
         "logout": "Abmelden"
     },
     "ThemeToggle": {
-        "toggle": "Thema wechseln"
+        "toggle": "Design wechseln"
     },
     "Admin": {
         "title": "Admin-Dashboard",
@@ -55,7 +55,7 @@
             "resetConfirm": "Sind Sie sicher, dass Sie das Passwort zurücksetzen möchten für",
             "tempPassword": "Temporäres Passwort für",
             "editTitle": "Unternehmen bearbeiten",
-            "companyName": "Firmenname",
+            "companyName": "Unternehmensname",
             "updateToken": "Kiyoh-Token aktualisieren"
         }
     },
@@ -89,7 +89,7 @@
         "upsellTitle": "Upgrade auf Kiyoh AI",
         "upsellText": "Automatisieren Sie Ihre Antworten und erhalten Sie tiefere Einblicke mit Kiyoh AI.",
         "contactAdvisor": "Wenden Sie sich an Ihren Bewertungsberater, um diese Funktion zu aktivieren.",
-        "modalUpsell": "Möchten Sie Antworten mit KI generieren? Kontaktieren Sie Ihren Kontospezialisten für ein Upgrade."
+        "modalUpsell": "Möchten Sie Antworten mit KI generieren? Kontaktieren Sie Ihren Account-Spezialisten für ein Upgrade."
     },
     "Invite": {
         "title": "Bewertungseinladungen",
@@ -122,12 +122,12 @@
             "sent": "Gesendet",
             "pending": "Geplant"
         },
-        "qrCode": "QR Code",
-        "downloadQr": "QR Herunterladen"
+        "qrCode": "QR-Code",
+        "downloadQr": "QR-Code herunterladen"
     },
     "Reviews": {
         "title": "Bewertungen",
-        "reviewsCount": "Bewertungen",
+        "reviewsCount": "Reviews",
         "refresh": "Aktualisieren",
         "filters": "Filter",
         "sortDate": "Datum (neu - alt)",
@@ -146,7 +146,7 @@
             "changeTitle": "Änderung anfordern",
             "reportTitle": "Bewertung melden",
             "yourReply": "Ihre Antwort",
-            "placeholderPublic": "Schreiben Sie Ihre Antwort auf diese Bewertung...",
+            "placeholderPublic": "Verfassen Sie Ihre Antwort auf diese Bewertung...",
             "placeholderAI": "Klicken Sie auf 'Mit KI generieren' oder schreiben Sie selbst...",
             "type": "Antworttyp",
             "public": "Öffentlich",
@@ -156,7 +156,7 @@
             "emailNotify": "E-Mail-Benachrichtigung an Rezensenten senden",
             "send": "Antwort senden",
             "sending": "Senden...",
-            "changeText": "Eine E-Mail wird an den Rezensenten gesendet mit der Bitte, die Bewertung anzupassen.",
+            "changeText": "Es wird eine E-Mail an den Rezensenten gesendet mit der Bitte, die Bewertung anzupassen.",
             "reportReason": "Grund für Meldung",
             "reportPlaceholder": "Erklären Sie, warum diese Bewertung gemeldet werden soll...",
             "reportNote": "Hinweis: Meldungen werden vom Kiyoh-Moderationsteam überprüft.",
@@ -171,17 +171,17 @@
     "Settings": {
         "title": "Einstellungen",
         "subtitle": "Verwalten Sie Ihre Kiyoh API-Verbindung",
-        "apiConfigTitle": "Kiyoh API Konfiguration",
+        "apiConfigTitle": "Kiyoh API-Konfiguration",
         "apiConfigSubtitle": "Verbinden Sie Ihr Kiyoh-Konto",
-        "companyName": "Firmenname",
-        "companyPlaceholder": "Ihr Firmenname",
-        "locationId": "Location ID",
+        "companyName": "Unternehmensname",
+        "companyPlaceholder": "Ihr Unternehmensname",
+        "locationId": "Standort-ID",
         "locationHint": "Zu finden in Ihrem Kiyoh-Dashboard unter Einstellungen",
-        "apiToken": "API Token",
+        "apiToken": "API-Token",
         "tokenPlaceholder": "Ihr API-Token",
         "tokenHint": "Leer lassen, um das aktuelle Token zu behalten",
         "platform": "Plattform",
-        "tenantId": "Tenant ID",
+        "tenantId": "Mandanten-ID",
         "save": "Einstellungen speichern",
         "saving": "Speichern...",
         "success": "Einstellungen erfolgreich gespeichert!",
@@ -189,7 +189,7 @@
         "helpTitle": "Wo finde ich meine API-Daten?",
         "helpStep1": "Loggen Sie sich in Ihr Kiyoh-Dashboard ein",
         "helpStep2": "Gehen Sie zu \"Einladen\" → \"Extra Optionen\"",
-        "helpStep3": "Kopieren Sie Ihre Location ID und Ihr API Token",
+        "helpStep3": "Kopieren Sie Ihre Standort-ID und Ihr API-Token",
         "openDashboard": "Kiyoh Dashboard öffnen",
         "currentConfig": "Aktuelle Konfiguration",
         "status": "Status",
