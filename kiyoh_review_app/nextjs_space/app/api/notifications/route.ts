@@ -144,55 +144,80 @@ export async function POST(request: NextRequest) {
       const reviewId = review.reviewId?.toString();
       if (!reviewId) continue;
 
-      // Check if we already have this review
+      // Robust Extract review content logic (matching reviews-content.tsx)
+      let reviewText = "";
+      if (Array.isArray(review.reviewContent)) {
+        // Try standard keys first
+        const oneliner = review.reviewContent.find((c: any) => c.questionGroup === "DEFAULT_ONELINER")?.rating;
+        const opinion = review.reviewContent.find((c: any) => c.questionGroup === "DEFAULT_OPINION")?.rating;
+
+        // Try fallbacks
+        const positive = review.reviewContent.find((c: any) => c.questionGroup === "positive")?.rating;
+        const general = review.reviewContent.find((c: any) => c.questionGroup === "general_opinion")?.rating;
+
+        reviewText = (opinion || oneliner || positive || general || "").toString();
+
+        // If still empty, grab ANY text content
+        if (!reviewText) {
+          const anyText = review.reviewContent.find((c: any) => c.rating && c.rating.toString().length > 2);
+          if (anyText) reviewText = anyText.rating.toString();
+        }
+      }
+
+      // Robust Date logic
+      let reviewDate = new Date();
+      if (review.dateSince) {
+        reviewDate = new Date(review.dateSince);
+      } else if (review.updatedSince) {
+        reviewDate = new Date(review.updatedSince);
+      }
+
+      const rating = review.rating || 0;
+      const author = review.reviewAuthor || "Anoniem";
+
+      // PREPARE DATA - Check existence to decide on AI generation
       const existing = await prisma.reviewNotification.findUnique({
+        where: { reviewId_companyId: { reviewId, companyId } }
+      });
+
+      let suggestedResponse = existing?.suggestedResponse || "";
+      if (!existing && !suggestedResponse) {
+        suggestedResponse = await generateAIResponse(companyName, author, rating, reviewText);
+        newCount++;
+      }
+
+      // UPSERT to fix broken data in existing records
+      await prisma.reviewNotification.upsert({
         where: {
           reviewId_companyId: {
             reviewId,
             companyId,
           },
         },
-      });
-
-      if (existing) continue;
-
-      // Extract review content
-      // Extract review content
-      const oneliner = review.reviewContent?.find((c: any) => c.questionGroup === "DEFAULT_ONELINER")?.rating;
-      const opinion = review.reviewContent?.find((c: any) => c.questionGroup === "DEFAULT_OPINION")?.rating;
-
-      // Fallback to other possible keys if defaults are missing
-      const positive = review.reviewContent?.find((c: any) => c.questionGroup === "positive")?.rating;
-      const general = review.reviewContent?.find((c: any) => c.questionGroup === "general_opinion")?.rating;
-
-      const reviewText = (opinion || oneliner || positive || general || "").toString();
-      const rating = review.rating || 0;
-
-      // Generate AI response using Abacus AI
-      const suggestedResponse = await generateAIResponse(companyName, review.reviewAuthor || "Anoniem", rating, reviewText);
-
-      // Create notification
-      await prisma.reviewNotification.create({
-        data: {
+        update: {
+          reviewText: reviewText, // Fix broken text
+          reviewDate: reviewDate, // Fix broken date
+          reviewRating: rating,
+          reviewAuthor: author,
+        },
+        create: {
           reviewId,
           companyId,
-          reviewAuthor: review.reviewAuthor || "Anoniem",
+          reviewAuthor: author,
           reviewRating: rating,
           reviewText,
-          reviewDate: review.dateSince ? new Date(review.dateSince) : (review.updatedSince ? new Date(review.updatedSince) : new Date()),
+          reviewDate,
           suggestedResponse,
           status: "pending",
           isRead: false,
         },
       });
-
-      newCount++;
     }
 
     return NextResponse.json({
       success: true,
       newReviews: newCount,
-      message: newCount > 0 ? `${newCount} nieuwe review(s) gevonden` : "Geen nieuwe reviews",
+      message: newCount > 0 ? `${newCount} nieuwe review(s) gevonden` : "Reviews gesynchroniseerd",
     });
   } catch (error) {
     console.error("Sync notifications error:", error);
