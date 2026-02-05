@@ -1,0 +1,62 @@
+{
+    "Header": {
+        "dashboard": "Dashboard",
+        "reviews": "Reviews",
+        "invites": "Uitnodigingen",
+        "settings": "Instellingen",
+        "admin": "Beheer",
+        "profile": "Profiel",
+        "logout": "Uitloggen"
+    },
+    "ThemeToggle": {
+        "toggle": "Thema wisselen"
+    },
+    "Admin": {
+        "title": "Beheer Dashboard",
+        "subtitle": "Beheer gebruikers, bedrijven en AI instellingen",
+        "tabs": {
+            "users": "Gebruikers",
+            "companies": "Bedrijven & AI"
+        },
+        "stats": {
+            "totalUsers": "Totaal gebruikers",
+            "apiConfigured": "API geconfigureerd",
+            "activeRecently": "Actief (24u)",
+            "totalReviews": "Totaal reviews",
+            "totalCompanies": "Totaal bedrijven",
+            "aiEnabled": "AI ingeschakeld",
+            "sentInvites": "Verzonden invites"
+        },
+        "searchPlaceholder": "Zoek op naam, email of bedrijf...",
+        "filterApi": "API:",
+        "refresh": "Vernieuwen",
+        "table": {
+            "user": "Gebruiker",
+            "company": "Bedrijf",
+            "api": "API",
+            "reviews": "Reviews",
+            "invites": "Uitnodigingen",
+            "lastActive": "Laatst actief",
+            "actions": "Acties",
+            "locationId": "Location ID",
+            "created": "Aangemaakt",
+            "ai": "AI"
+        },
+        "actions": {
+            "reset": "Reset",
+            "save": "Opslaan",
+            "cancel": "Annuleren",
+            "edit": "Bewerken",
+            "on": "Aan",
+            "off": "Uit"
+        },
+        "modals": {
+            "resetTitle": "Wachtwoord resetten",
+            "resetConfirm": "Weet u zeker dat u het wachtwoord wilt resetten voor",
+            "tempPassword": "Tijdelijk wachtwoord voor",
+            "editTitle": "Bedrijf Bewerken",
+            "companyName": "Bedrijfsnaam",
+            "updateToken": "Update Kiyoh Token"
+        }
+    }
+}

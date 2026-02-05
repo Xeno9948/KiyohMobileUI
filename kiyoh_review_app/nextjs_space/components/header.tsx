@@ -8,6 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 import { LayoutDashboard, Star, Send, Settings, LogOut, Menu, X, Shield } from "lucide-react";
 import NotificationCenter from "./notification-center";
 import { ThemeToggle } from "./theme-toggle";
+import { LanguageSwitcher } from "./language-switcher";
 
 
 export default function Header() {
@@ -84,6 +85,7 @@ export default function Header() {
             <NotificationCenter />
 
             <ThemeToggle />
+            <LanguageSwitcher />
 
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-[#3d3d3d]">{session.user?.name || session.user?.email}</p>
