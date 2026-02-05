@@ -11,7 +11,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
 
 
+import { useTranslations } from "@/hooks/use-translations";
+
 export default function Header() {
+  const t = useTranslations("Header");
   const pathname = usePathname();
   const { data: session } = useSession() || {};
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,10 +22,10 @@ export default function Header() {
   const isActive = (path: string) => pathname === path;
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/reviews", label: "Reviews", icon: Star },
-    { href: "/invite", label: "Uitnodigingen", icon: Send },
-    { href: "/settings", label: "Instellingen", icon: Settings },
+    { href: "/dashboard", label: t('dashboard'), icon: LayoutDashboard },
+    { href: "/reviews", label: t('reviews'), icon: Star },
+    { href: "/invite", label: t('invites'), icon: Send },
+    { href: "/settings", label: t('settings'), icon: Settings },
   ];
 
   const isSuperAdmin = (session?.user as any)?.role === "superadmin";
@@ -74,7 +77,7 @@ export default function Header() {
                   }`}
               >
                 <Shield size={18} />
-                Admin
+                {t('admin')}
               </Link>
             )}
           </nav>
@@ -95,7 +98,7 @@ export default function Header() {
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="btn-secondary !p-2 hidden sm:flex"
-              title="Sign out"
+              title={t('logout')}
             >
               <LogOut size={18} />
             </button>
@@ -142,7 +145,7 @@ export default function Header() {
                     }`}
                 >
                   <Shield size={20} />
-                  Admin
+                  {t('admin')}
                 </Link>
               )}
 
@@ -151,7 +154,7 @@ export default function Header() {
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 w-full"
               >
                 <LogOut size={20} />
-                Uitloggen
+                {t('logout')}
               </button>
             </nav>
           </div>

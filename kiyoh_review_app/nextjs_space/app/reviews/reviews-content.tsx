@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, User, MapPin, Calendar, MessageSquare, RefreshCw, AlertCircle, ChevronLeft, ChevronRight, Reply, Flag, Edit3, X, Send, Loader2, CheckCircle, Sparkles } from "lucide-react";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface Review {
   reviewId?: string;
@@ -30,6 +31,7 @@ interface ReviewsResponse {
 type ModalType = "reply" | "changeRequest" | "abuse" | null;
 
 export default function ReviewsContent() {
+  const t = useTranslations("Reviews");
   const [reviews, setReviews] = useState<Review[]>([]);
   const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ export default function ReviewsContent() {
 
     try {
       const res = await fetch(`/api/kiyoh/reviews?limit=${perPage * page}&orderBy=${orderBy}&sortOrder=${sortOrder}`);
-      
+
       if (!res.ok) throw new Error("Failed to fetch reviews");
 
       const data: ReviewsResponse = await res.json();
@@ -93,7 +95,7 @@ export default function ReviewsContent() {
 
   const startIndex = (page - 1) * perPage;
   let filteredReviews = reviews?.slice?.(startIndex, startIndex + perPage) ?? [];
-  
+
   if (ratingFilter !== null) {
     filteredReviews = filteredReviews.filter(r => Math.ceil((r.rating || 0) / 2) === ratingFilter);
   }
@@ -144,15 +146,15 @@ export default function ReviewsContent() {
 
   const generateAIResponse = async () => {
     if (!selectedReview) return;
-    
+
     setGeneratingAI(true);
     setError("");
-    
+
     try {
-      const reviewText = getReviewText(selectedReview, "DEFAULT_OPINION") || 
-                         getReviewText(selectedReview, "DEFAULT_ONELINER") || 
-                         "Geen tekst";
-      
+      const reviewText = getReviewText(selectedReview, "DEFAULT_OPINION") ||
+        getReviewText(selectedReview, "DEFAULT_ONELINER") ||
+        "Geen tekst";
+
       const res = await fetch("/api/ai/generate-response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -164,7 +166,7 @@ export default function ReviewsContent() {
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || "Kon AI reactie niet genereren");
       }
@@ -205,7 +207,7 @@ export default function ReviewsContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Kon reactie niet verzenden");
 
-      setSuccessMessage("Reactie succesvol verzonden!");
+      setSuccessMessage(t('modals.successReply'));
       setTimeout(() => { closeModal(); fetchReviews(); }, 1500);
     } catch (err: any) {
       setError(err.message || "Kon reactie niet verzenden");
@@ -230,7 +232,7 @@ export default function ReviewsContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Kon verzoek niet versturen");
 
-      setSuccessMessage("Wijzigingsverzoek verzonden!");
+      setSuccessMessage(t('modals.successChange'));
       setTimeout(() => closeModal(), 1500);
     } catch (err: any) {
       setError(err.message || "Kon verzoek niet versturen");
@@ -261,7 +263,7 @@ export default function ReviewsContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Kon melding niet versturen");
 
-      setSuccessMessage("Melding succesvol verzonden!");
+      setSuccessMessage(t('modals.successReport'));
       setTimeout(() => closeModal(), 1500);
     } catch (err: any) {
       setError(err.message || "Kon melding niet versturen");
@@ -275,21 +277,21 @@ export default function ReviewsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#3d3d3d]">Reviews</h1>
-          <p className="text-gray-500">{totalReviews?.toLocaleString?.("nl-NL") ?? 0} beoordelingen</p>
+          <h1 className="text-2xl font-bold text-[#3d3d3d]">{t('title')}</h1>
+          <p className="text-gray-500">{totalReviews?.toLocaleString?.("nl-NL") ?? 0} {t('reviewsCount')}</p>
         </div>
 
         <button onClick={fetchReviews} className="btn-kiyoh">
           <RefreshCw size={18} />
-          Vernieuwen
+          {t('refresh')}
         </button>
       </div>
 
       {/* Filters */}
       <div className="kiyoh-card p-4">
         <div className="flex flex-wrap items-center gap-4">
-          <span className="text-sm font-medium text-gray-600">Filters</span>
-          
+          <span className="text-sm font-medium text-gray-600">{t('filters')}</span>
+
           {/* Star Rating Filter */}
           <div className="flex items-center gap-1">
             {[5, 4, 3, 2, 1].map((stars) => (
@@ -312,9 +314,9 @@ export default function ReviewsContent() {
             onChange={(e) => { setOrderBy(e.target.value); setPage(1); }}
             className="kiyoh-select"
           >
-            <option value="CREATE_DATE">Datum (nieuw - oud)</option>
-            <option value="UPDATE_DATE">Laatst bijgewerkt</option>
-            <option value="RATING">Beoordeling</option>
+            <option value="CREATE_DATE">{t('sortDate')}</option>
+            <option value="UPDATE_DATE">{t('sortUpdate')}</option>
+            <option value="RATING">{t('sortRating')}</option>
           </select>
 
           <select
@@ -322,8 +324,8 @@ export default function ReviewsContent() {
             onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
             className="kiyoh-select"
           >
-            <option value="DESC">Aflopend</option>
-            <option value="ASC">Oplopend</option>
+            <option value="DESC">{t('sortDesc')}</option>
+            <option value="ASC">{t('sortAsc')}</option>
           </select>
         </div>
       </div>
@@ -344,7 +346,7 @@ export default function ReviewsContent() {
           <div className="space-y-4">
             {filteredReviews?.length === 0 ? (
               <div className="kiyoh-card p-8 text-center">
-                <p className="text-gray-500">Geen reviews gevonden</p>
+                <p className="text-gray-500">{t('noReviews')}</p>
               </div>
             ) : (
               filteredReviews?.map?.((review, index) => (
@@ -357,7 +359,7 @@ export default function ReviewsContent() {
                 >
                   <div className="flex items-start gap-4">
                     {/* Rating Badge */}
-                    <div 
+                    <div
                       className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
                       style={{ background: getRatingColor(review?.rating || 0) }}
                     >
@@ -408,7 +410,7 @@ export default function ReviewsContent() {
                         <div className="response-badge mt-4">
                           <div className="flex items-center gap-2 mb-1">
                             <MessageSquare className="text-[#6bbc4a]" size={14} />
-                            <span className="text-[#6bbc4a] font-medium text-sm">Reactie bedrijf</span>
+                            <span className="text-[#6bbc4a] font-medium text-sm">{t('responseBadge')}</span>
                           </div>
                           <p className="text-gray-600 text-sm">{review.reviewComments}</p>
                         </div>
@@ -421,21 +423,21 @@ export default function ReviewsContent() {
                           className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
                         >
                           <Reply size={14} />
-                          Reageren
+                          {t('reply')}
                         </button>
                         <button
                           onClick={() => openModal("changeRequest", review)}
                           className="filter-tag hover:border-[#ffcc01] hover:text-[#eb5b0c]"
                         >
                           <Edit3 size={14} />
-                          Wijziging vragen
+                          {t('changeRequest')}
                         </button>
                         <button
                           onClick={() => openModal("abuse", review)}
                           className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
                         >
                           <Flag size={14} />
-                          Melden
+                          {t('report')}
                         </button>
                       </div>
                     </div>
@@ -467,11 +469,10 @@ export default function ReviewsContent() {
                   <button
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
-                    className={`w-10 h-10 rounded-lg font-medium transition-all ${
-                      page === pageNum
+                    className={`w-10 h-10 rounded-lg font-medium transition-all ${page === pageNum
                         ? "bg-[#6bbc4a] text-white"
                         : "btn-secondary"
-                    }`}
+                      }`}
                   >
                     {pageNum}
                   </button>
@@ -489,7 +490,9 @@ export default function ReviewsContent() {
           )}
 
           <p className="text-center text-gray-400 text-sm">
-            {startIndex + 1} - {Math.min(startIndex + perPage, totalReviews)} van {totalReviews} reviews
+            {t('pagination').replace('{start}', (startIndex + 1).toString())
+              .replace('{end}', Math.min(startIndex + perPage, totalReviews).toString())
+              .replace('{total}', totalReviews.toString())}
           </p>
         </>
       )}
@@ -514,9 +517,9 @@ export default function ReviewsContent() {
               {/* Modal Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100">
                 <h3 className="text-xl font-bold text-[#3d3d3d]">
-                  {modalType === "reply" && "Reageren op review"}
-                  {modalType === "changeRequest" && "Wijziging aanvragen"}
-                  {modalType === "abuse" && "Review melden"}
+                  {modalType === "reply" && t('modals.replyTitle')}
+                  {modalType === "changeRequest" && t('modals.changeTitle')}
+                  {modalType === "abuse" && t('modals.reportTitle')}
                 </h3>
                 <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-full transition-all">
                   <X size={20} className="text-gray-500" />
@@ -526,7 +529,7 @@ export default function ReviewsContent() {
               {/* Review Preview */}
               <div className="p-5 bg-gray-50 border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
                     style={{ background: getRatingColor(selectedReview.rating || 0) }}
                   >
@@ -574,52 +577,50 @@ export default function ReviewsContent() {
                             {generatingAI ? (
                               <>
                                 <Loader2 className="animate-spin" size={18} />
-                                AI genereert reactie...
+                                {t('modals.aiGenerating')}
                               </>
                             ) : (
                               <>
                                 <Sparkles size={18} />
-                                Genereer reactie met AI
+                                {t('modals.aiGenerate')}
                               </>
                             )}
                           </button>
                         )}
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Uw reactie</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.yourReply')}</label>
                           <textarea
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
-                            placeholder={aiEnabled ? "Klik op 'Genereer reactie met AI' of schrijf zelf..." : "Schrijf uw reactie op deze review..."}
+                            placeholder={aiEnabled ? t('modals.placeholderAI') : t('modals.placeholderPublic')}
                             rows={4}
                             className="kiyoh-input resize-none"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Type reactie</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.type')}</label>
                           <div className="flex gap-3">
                             <button
                               type="button"
                               onClick={() => setReplyType("PUBLIC")}
-                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
-                                replyType === "PUBLIC" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                              }`}
+                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${replyType === "PUBLIC" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }`}
                             >
-                              Openbaar
+                              {t('modals.public')}
                             </button>
                             <button
                               type="button"
                               onClick={() => setReplyType("PRIVATE")}
-                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
-                                replyType === "PRIVATE" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                              }`}
+                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${replyType === "PRIVATE" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }`}
                             >
-                              Privé
+                              {t('modals.private')}
                             </button>
                           </div>
                           <p className="text-xs text-gray-500 mt-1">
-                            {replyType === "PUBLIC" ? "Reactie is zichtbaar voor iedereen" : "Reactie wordt alleen naar de reviewer gestuurd"}
+                            {replyType === "PUBLIC" ? t('modals.publicDesc') : t('modals.privateDesc')}
                           </p>
                         </div>
 
@@ -630,7 +631,7 @@ export default function ReviewsContent() {
                             onChange={(e) => setSendEmail(e.target.checked)}
                             className="w-4 h-4 text-[#6bbc4a] border-gray-300 rounded focus:ring-[#6bbc4a]"
                           />
-                          <span className="text-sm text-gray-700">E-mail notificatie sturen naar reviewer</span>
+                          <span className="text-sm text-gray-700">{t('modals.emailNotify')}</span>
                         </label>
 
                         <button
@@ -639,7 +640,7 @@ export default function ReviewsContent() {
                           className="w-full btn-kiyoh justify-center disabled:opacity-50"
                         >
                           {submitting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                          {submitting ? "Verzenden..." : "Reactie verzenden"}
+                          {submitting ? t('modals.sending') : t('modals.send')}
                         </button>
                       </>
                     )}
@@ -648,7 +649,7 @@ export default function ReviewsContent() {
                       <>
                         <div className="p-4 bg-[#ffcc01]/10 rounded-xl">
                           <p className="text-gray-700 text-sm">
-                            Er wordt een e-mail gestuurd naar <strong>{selectedReview.reviewAuthor || "de reviewer"}</strong> met het verzoek om de review bij te werken.
+                            <strong>{selectedReview.reviewAuthor || "de reviewer"}</strong> {t('modals.changeText')}
                           </p>
                         </div>
 
@@ -658,7 +659,7 @@ export default function ReviewsContent() {
                           className="w-full py-3 px-4 bg-[#ffcc01] hover:bg-[#e6b800] text-[#3d3d3d] font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                         >
                           {submitting ? <Loader2 className="animate-spin" size={18} /> : <Edit3 size={18} />}
-                          {submitting ? "Verzenden..." : "Wijziging aanvragen"}
+                          {submitting ? t('modals.sending') : t('modals.changeTitle')}
                         </button>
                       </>
                     )}
@@ -666,11 +667,11 @@ export default function ReviewsContent() {
                     {modalType === "abuse" && (
                       <>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Reden voor melding</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.reportReason')}</label>
                           <textarea
                             value={abuseReason}
                             onChange={(e) => setAbuseReason(e.target.value)}
-                            placeholder="Leg uit waarom deze review gemeld moet worden (bijv. ongepaste inhoud, nep review, spam)..."
+                            placeholder={t('modals.reportPlaceholder')}
                             rows={4}
                             className="kiyoh-input resize-none"
                           />
@@ -678,7 +679,7 @@ export default function ReviewsContent() {
 
                         <div className="p-4 bg-[#eb5b0c]/10 rounded-xl">
                           <p className="text-gray-700 text-sm">
-                            <strong>Let op:</strong> Meldingen worden beoordeeld door het Kiyoh moderatieteam.
+                            {t('modals.reportNote')}
                           </p>
                         </div>
 
@@ -688,7 +689,7 @@ export default function ReviewsContent() {
                           className="w-full py-3 px-4 bg-[#eb5b0c] hover:bg-[#d44f08] text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                         >
                           {submitting ? <Loader2 className="animate-spin" size={18} /> : <Flag size={18} />}
-                          {submitting ? "Verzenden..." : "Melding verzenden"}
+                          {submitting ? t('modals.sending') : t('modals.sendReport')}
                         </button>
                       </>
                     )}
