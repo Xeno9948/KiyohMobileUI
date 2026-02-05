@@ -58,5 +58,31 @@
             "companyName": "Bedrijfsnaam",
             "updateToken": "Update Kiyoh Token"
         }
+    },
+    "Dashboard": {
+        "title": "Reviews voor",
+        "refresh": "Verversen",
+        "totalScore": "Totaal score",
+        "totalReviews": "Totaal aantal beoordelingen",
+        "recommends": "Beveelt ons aan",
+        "average12Months": "12 Maanden gemiddeld",
+        "reviewsLast12Months": "beoordelingen in de laatste 12 maanden",
+        "sendInvite": "Stuur een review uitnodiging",
+        "latestReview": "Laatste Review",
+        "viewAll": "Alle reviews bekijken",
+        "overview": "Review overzicht",
+        "positiveSentiment": "Positief sentiment",
+        "summary": "scoort gemiddeld een",
+        "outOf": "uit 10, met",
+        "recommendationText": "aanbevelingen.",
+        "strongPoints": "Sterke punten",
+        "analyzing": "AI analyseert reviews...",
+        "clickToAnalyze": "Klik op vernieuwen om sterke punten te analyseren",
+        "aiAnalysis": "AI-analyse van",
+        "verified": "Geverifieerde reviews",
+        "distribution": "Verdeling",
+        "setupTitle": "Setup Vereist",
+        "setupText": "Verbind uw Kiyoh account om uw reviews te beheren. U heeft uw Locatie ID en API Token nodig.",
+        "configureBtn": "API Instellingen Configureren"
     }
 }

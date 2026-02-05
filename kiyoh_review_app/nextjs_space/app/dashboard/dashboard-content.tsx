@@ -32,7 +32,10 @@ interface Review {
   }>;
 }
 
+import { useTranslations } from "@/hooks/use-translations";
+
 export default function DashboardContent() {
+  const t = useTranslations("Dashboard");
   const [stats, setStats] = useState<Statistics | null>(null);
   const [recentReview, setRecentReview] = useState<Review | null>(null);
   const [strongPoints, setStrongPoints] = useState<string[]>([]);
@@ -56,7 +59,7 @@ export default function DashboardContent() {
         } else {
           setStats(statsData);
           setRecentReview(reviewsData?.reviews?.[0] || null);
-          
+
           // Auto-sync notifications and analyze reviews on login
           syncAndAnalyze();
         }
@@ -95,7 +98,7 @@ export default function DashboardContent() {
       // First try to get cached strong points
       const cachedRes = await fetch("/api/ai/analyze-reviews");
       const cachedData = await cachedRes.json();
-      
+
       if (cachedData.strongPoints && cachedData.strongPoints.length > 0) {
         setStrongPoints(cachedData.strongPoints);
       } else {
@@ -164,16 +167,16 @@ export default function DashboardContent() {
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#f5f5f5] flex items-center justify-center">
             <Settings className="text-[#eb5b0c]" size={36} />
           </div>
-          <h2 className="text-2xl font-bold text-[#3d3d3d] mb-3">Setup Required</h2>
+          <h2 className="text-2xl font-bold text-[#3d3d3d] mb-3">{t('setupTitle')}</h2>
           <p className="text-gray-500 mb-6">
-            Connect your Kiyoh account to start managing your reviews. You&apos;ll need your Location ID and API Token.
+            {t('setupText')}
           </p>
-          <Link 
+          <Link
             href="/settings"
             className="btn-kiyoh inline-flex"
           >
             <Settings size={18} />
-            Configure API Settings
+            {t('configureBtn')}
             <ArrowRight size={18} />
           </Link>
         </motion.div>
@@ -196,15 +199,15 @@ export default function DashboardContent() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#3d3d3d]">
-            Reviews voor {stats?.locationName || "Your Business"}
+            {t('title')} {stats?.locationName || "Your Business"}
           </h1>
         </div>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="btn-secondary flex items-center gap-2"
         >
           <RefreshCw size={16} />
-          Refresh
+          {t('refresh')}
         </button>
       </div>
 
@@ -244,27 +247,26 @@ export default function DashboardContent() {
                   ))}
                 </div>
                 <p className="text-gray-500 text-sm mt-2 text-center">
-                  {formatNumber(stats?.last12MonthNumberReviews)} beoordelingen<br />
-                  in de laatste 12 maanden
+                  {formatNumber(stats?.last12MonthNumberReviews)} {t('reviewsLast12Months')}
                 </p>
               </div>
 
               {/* Stats Grid */}
               <div className="flex-1 grid grid-cols-2 gap-4 w-full">
                 <div className="stat-box">
-                  <p className="stat-label">Totaal score</p>
+                  <p className="stat-label">{t('totalScore')}</p>
                   <p className="stat-value">{(stats?.averageRating || 0).toFixed(1)}</p>
                 </div>
                 <div className="stat-box">
-                  <p className="stat-label">Totaal aantal beoordelingen</p>
+                  <p className="stat-label">{t('totalReviews')}</p>
                   <p className="stat-value">{formatNumber(stats?.numberReviews)}</p>
                 </div>
                 <div className="stat-box">
-                  <p className="stat-label">Beveelt ons aan</p>
+                  <p className="stat-label">{t('recommends')}</p>
                   <p className="stat-value">{stats?.recommendation || 0}%</p>
                 </div>
                 <div className="stat-box">
-                  <p className="stat-label">12 Maanden gemiddeld</p>
+                  <p className="stat-label">{t('average12Months')}</p>
                   <p className="stat-value">{(stats?.last12MonthAverageRating || 0).toFixed(1)}</p>
                 </div>
               </div>
@@ -274,7 +276,7 @@ export default function DashboardContent() {
             <div className="mt-6 flex justify-center">
               <Link href="/invite" className="btn-kiyoh">
                 <MessageSquare size={18} />
-                Stuur een review uitnodiging
+                {t('sendInvite')}
               </Link>
             </div>
           </motion.div>
@@ -288,15 +290,15 @@ export default function DashboardContent() {
               className="kiyoh-card p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[#3d3d3d]">Laatste Review</h3>
+                <h3 className="font-semibold text-[#3d3d3d]">{t('latestReview')}</h3>
                 <Link href="/reviews" className="text-[#6bbc4a] text-sm font-medium hover:underline flex items-center gap-1">
-                  Alle reviews bekijken
+                  {t('viewAll')}
                   <ArrowRight size={14} />
                 </Link>
               </div>
-              
+
               <div className="flex items-start gap-4">
-                <div 
+                <div
                   className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
                   style={{ background: getRatingColor(recentReview.rating || 0) }}
                 >
@@ -341,28 +343,27 @@ export default function DashboardContent() {
             transition={{ delay: 0.15 }}
             className="overview-card"
           >
-            <h3 className="overview-title">Review overzicht</h3>
-            
+            <h3 className="overview-title">{t('overview')}</h3>
+
             <div className="mb-4">
               <div className="flex items-center justify-between text-sm mb-2">
-                <span className="text-gray-600">Positief sentiment</span>
+                <span className="text-gray-600">{t('positiveSentiment')}</span>
                 <span className="font-semibold text-[#6bbc4a]">{calculateSentiment()}%</span>
               </div>
               <div className="sentiment-bar"></div>
             </div>
 
             <p className="text-gray-600 text-sm mb-4">
-              {stats?.locationName || "Your business"} scoort gemiddeld een {(stats?.averageRating || 0).toFixed(1)} uit 10, 
-              met {stats?.recommendation || 0}% aanbevelingen.
+              {stats?.locationName || "Your business"} {t('summary')} {(stats?.averageRating || 0).toFixed(1)} {t('outOf')} {stats?.recommendation || 0}% {t('recommendationText')}
             </p>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <Sparkles className="text-[#6bbc4a]" size={16} />
-                  <span className="font-medium text-[#6bbc4a]">Sterke punten</span>
+                  <span className="font-medium text-[#6bbc4a]">{t('strongPoints')}</span>
                 </div>
-                <button 
+                <button
                   onClick={refreshStrongPoints}
                   disabled={loadingStrongPoints}
                   className="text-xs text-gray-400 hover:text-[#6bbc4a] transition-colors"
@@ -374,7 +375,7 @@ export default function DashboardContent() {
               {loadingStrongPoints ? (
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                   <RefreshCw size={14} className="animate-spin" />
-                  <span>AI analyseert reviews...</span>
+                  <span>{t('analyzing')}</span>
                 </div>
               ) : strongPoints.length > 0 ? (
                 strongPoints.map((point, index) => (
@@ -385,14 +386,14 @@ export default function DashboardContent() {
                 ))
               ) : (
                 <div className="text-sm text-gray-400">
-                  Klik op vernieuwen om sterke punten te analyseren
+                  {t('clickToAnalyze')}
                 </div>
               )}
             </div>
 
             <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
               <Sparkles size={12} />
-              AI-analyse van {formatNumber(stats?.numberReviews)} reviews
+              {t('aiAnalysis').replace('{count}', formatNumber(stats?.numberReviews))}
             </p>
           </motion.div>
 
@@ -405,15 +406,15 @@ export default function DashboardContent() {
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 relative">
-                <Image 
-                  src="/kiyoh-logo.png" 
-                  alt="Kiyoh" 
+                <Image
+                  src="/kiyoh-logo.png"
+                  alt="Kiyoh"
                   fill
                   className="object-contain"
                 />
               </div>
               <div>
-                <p className="font-semibold text-[#3d3d3d]">Geverifieerde reviews</p>
+                <p className="font-semibold text-[#3d3d3d]">{t('verified')}</p>
                 <p className="text-sm text-gray-500">Powered by Kiyoh</p>
               </div>
             </div>
@@ -426,7 +427,7 @@ export default function DashboardContent() {
             transition={{ delay: 0.25 }}
             className="kiyoh-card p-5"
           >
-            <h4 className="font-semibold text-[#3d3d3d] mb-4">Verdeling</h4>
+            <h4 className="font-semibold text-[#3d3d3d] mb-4">{t('distribution')}</h4>
             {[
               { stars: 5, count: stats?.fiveStars || 0 },
               { stars: 4, count: stats?.fourStars || 0 },
@@ -443,9 +444,9 @@ export default function DashboardContent() {
                     <Star size={14} fill="#ffcc01" color="#ffcc01" />
                   </div>
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full rounded-full transition-all"
-                      style={{ 
+                      style={{
                         width: `${percentage}%`,
                         background: item.stars >= 4 ? "var(--kiyoh-green)" : item.stars === 3 ? "var(--kiyoh-yellow)" : "var(--kiyoh-orange)"
                       }}

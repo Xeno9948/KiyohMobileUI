@@ -58,5 +58,31 @@
             "companyName": "Company Name",
             "updateToken": "Update Kiyoh Token"
         }
+    },
+    "Dashboard": {
+        "title": "Reviews for",
+        "refresh": "Refresh",
+        "totalScore": "Total score",
+        "totalReviews": "Total reviews",
+        "recommends": "Recommends us",
+        "average12Months": "12 Months average",
+        "reviewsLast12Months": "reviews in the last 12 months",
+        "sendInvite": "Send review invitation",
+        "latestReview": "Latest Review",
+        "viewAll": "View all reviews",
+        "overview": "Review overview",
+        "positiveSentiment": "Positive sentiment",
+        "summary": "scores an average of",
+        "outOf": "out of 10, with",
+        "recommendationText": "recommendations.",
+        "strongPoints": "Strong points",
+        "analyzing": "AI analyzing reviews...",
+        "clickToAnalyze": "Click refresh to analyze strong points",
+        "aiAnalysis": "AI analysis of",
+        "verified": "Verified reviews",
+        "distribution": "Distribution",
+        "setupTitle": "Setup Required",
+        "setupText": "Connect your Kiyoh account to start managing your reviews. You'll need your Location ID and API Token.",
+        "configureBtn": "Configure API Settings"
     }
 }
