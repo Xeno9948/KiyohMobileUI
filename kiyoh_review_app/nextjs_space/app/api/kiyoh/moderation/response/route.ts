@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db';
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -41,7 +41,7 @@ export async function PUT(request: NextRequest) {
         'X-Publication-Api-Token': apiToken,
       },
       body: JSON.stringify({
-        locationId,
+        locationId: locationId.trim(),
         tenantId,
         reviewId,
         response,

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Settings, Key, Globe, Hash, CheckCircle, AlertCircle, Loader2, ExternalLink, Save } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "@/hooks/use-translations";
 
 interface Company {
   id: string;
@@ -15,6 +16,7 @@ interface Company {
 }
 
 export default function SettingsContent() {
+  const t = useTranslations("Settings");
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -72,14 +74,14 @@ export default function SettingsContent() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Kon instellingen niet opslaan");
+        throw new Error(data.error || t('error'));
       }
 
-      setSuccess("Instellingen succesvol opgeslagen!");
+      setSuccess(t('success'));
       setCompany(data.company);
       setFormData((prev) => ({ ...prev, apiToken: "" }));
     } catch (err: any) {
-      setError(err.message || "Er is iets misgegaan");
+      setError(err.message || t('error'));
     } finally {
       setSaving(false);
     }
@@ -96,8 +98,8 @@ export default function SettingsContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#3d3d3d]">Instellingen</h1>
-        <p className="text-gray-500">Beheer uw Kiyoh API-verbinding</p>
+        <h1 className="text-2xl font-bold text-[#3d3d3d]">{t('title')}</h1>
+        <p className="text-gray-500">{t('subtitle')}</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -112,8 +114,8 @@ export default function SettingsContent() {
               <Image src="/kiyoh-logo.png" alt="Kiyoh" fill className="object-contain" />
             </div>
             <div>
-              <h2 className="font-semibold text-[#3d3d3d]">Kiyoh API Configuratie</h2>
-              <p className="text-sm text-gray-500">Verbind uw Kiyoh account</p>
+              <h2 className="font-semibold text-[#3d3d3d]">{t('apiConfigTitle')}</h2>
+              <p className="text-sm text-gray-500">{t('apiConfigSubtitle')}</p>
             </div>
           </div>
 
@@ -134,21 +136,21 @@ export default function SettingsContent() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bedrijfsnaam
+                {t('companyName')}
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="kiyoh-input"
-                placeholder="Uw bedrijfsnaam"
+                placeholder={t('companyPlaceholder')}
                 required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location ID *
+                {t('locationId')} *
               </label>
               <div className="relative">
                 <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
@@ -157,18 +159,18 @@ export default function SettingsContent() {
                   value={formData.locationId}
                   onChange={(e) => setFormData({ ...formData, locationId: e.target.value })}
                   className="kiyoh-input with-icon"
-                  placeholder="bijv. 1080586"
+                  placeholder={t('locationIdPlaceholder')}
                   required
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Te vinden in uw Kiyoh dashboard onder instellingen
+                {t('locationHint')}
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                API Token *
+                {t('apiToken')} *
               </label>
               <div className="relative">
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
@@ -177,13 +179,13 @@ export default function SettingsContent() {
                   value={formData.apiToken}
                   onChange={(e) => setFormData({ ...formData, apiToken: e.target.value })}
                   className="kiyoh-input with-icon"
-                  placeholder={company ? "••••••••••••••••" : "Uw API token"}
+                  placeholder={company ? "••••••••••••••••" : t('tokenPlaceholder')}
                   required={!company}
                 />
               </div>
               {company && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Laat leeg om de huidige token te behouden
+                  {t('tokenHint')}
                 </p>
               )}
             </div>
@@ -191,7 +193,7 @@ export default function SettingsContent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Platform
+                  {t('platform')}
                 </label>
                 <div className="relative">
                   <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
@@ -215,7 +217,7 @@ export default function SettingsContent() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tenant ID
+                  {t('tenantId')}
                 </label>
                 <input
                   type="text"
@@ -238,7 +240,7 @@ export default function SettingsContent() {
               ) : (
                 <Save size={20} />
               )}
-              {saving ? "Opslaan..." : "Instellingen opslaan"}
+              {saving ? t('saving') : t('save')}
             </button>
           </form>
         </motion.div>
@@ -251,19 +253,19 @@ export default function SettingsContent() {
           className="space-y-6"
         >
           <div className="kiyoh-card p-6">
-            <h3 className="font-semibold text-[#3d3d3d] mb-4">Waar vind ik mijn API gegevens?</h3>
+            <h3 className="font-semibold text-[#3d3d3d] mb-4">{t('helpTitle')}</h3>
             <ol className="space-y-3 text-sm text-gray-600">
               <li className="flex gap-3">
                 <span className="w-6 h-6 rounded-full bg-[#6bbc4a] text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
-                <span>Log in op uw Kiyoh dashboard</span>
+                <span>{t('helpStep1')}</span>
               </li>
               <li className="flex gap-3">
                 <span className="w-6 h-6 rounded-full bg-[#6bbc4a] text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
-                <span>Ga naar &quot;Uitnodigen&quot; → &quot;Extra opties&quot;</span>
+                <span>{t('helpStep2')}</span>
               </li>
               <li className="flex gap-3">
                 <span className="w-6 h-6 rounded-full bg-[#6bbc4a] text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
-                <span>Kopieer uw Location ID en API Token</span>
+                <span>{t('helpStep3')}</span>
               </li>
             </ol>
             <a
@@ -273,27 +275,27 @@ export default function SettingsContent() {
               className="mt-4 btn-secondary w-full flex items-center justify-center gap-2"
             >
               <ExternalLink size={16} />
-              Open Kiyoh Dashboard
+              {t('openDashboard')}
             </a>
           </div>
 
           {company && (
             <div className="kiyoh-card p-6">
-              <h3 className="font-semibold text-[#3d3d3d] mb-4">Huidige configuratie</h3>
+              <h3 className="font-semibold text-[#3d3d3d] mb-4">{t('currentConfig')}</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Status</span>
+                  <span className="text-gray-500">{t('status')}</span>
                   <span className="text-[#6bbc4a] font-medium flex items-center gap-1">
                     <CheckCircle size={14} />
-                    Verbonden
+                    {t('connected')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Location ID</span>
+                  <span className="text-gray-500">{t('locationId')}</span>
                   <span className="font-mono text-[#3d3d3d]">{company.locationId}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Platform</span>
+                  <span className="text-gray-500">{t('platform')}</span>
                   <span className="text-[#3d3d3d]">
                     {company.baseUrl.includes("kiyoh") ? "Kiyoh" : "Klantenvertellen"}
                   </span>

@@ -167,5 +167,32 @@
         "setupTitle": "Setup Required",
         "setupText": "Connect your Kiyoh account to start managing your reviews. You'll need your Location ID and API Token.",
         "configureBtn": "Configure API Settings"
+    },
+    "Settings": {
+        "title": "Settings",
+        "subtitle": "Manage your Kiyoh API connection",
+        "apiConfigTitle": "Kiyoh API Configuration",
+        "apiConfigSubtitle": "Connect your Kiyoh account",
+        "companyName": "Company Name",
+        "companyPlaceholder": "Your company name",
+        "locationId": "Location ID",
+        "locationHint": "Found in your Kiyoh dashboard under settings",
+        "apiToken": "API Token",
+        "tokenPlaceholder": "Your API token",
+        "tokenHint": "Leave empty to keep current token",
+        "platform": "Platform",
+        "tenantId": "Tenant ID",
+        "save": "Save Settings",
+        "saving": "Saving...",
+        "success": "Settings saved successfully!",
+        "error": "Could not save settings",
+        "helpTitle": "Where can I find my API details?",
+        "helpStep1": "Log in to your Kiyoh dashboard",
+        "helpStep2": "Go to \"Invite\" → \"Extra options\"",
+        "helpStep3": "Copy your Location ID and API Token",
+        "openDashboard": "Open Kiyoh Dashboard",
+        "currentConfig": "Current Configuration",
+        "status": "Status",
+        "connected": "Connected"
     }
 }
