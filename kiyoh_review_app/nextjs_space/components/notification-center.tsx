@@ -243,14 +243,18 @@ export default function NotificationCenter() {
             transition={{ duration: 0.2 }}
             className="fixed left-2 right-2 top-20 sm:absolute sm:top-full sm:right-0 sm:left-auto sm:w-96 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[60] origin-top-right"
           >
+            const t = useTranslations("Notifications");
+
+            // ... (inside render) ...
+
             {/* Header */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="text-[#eb5b0c]" size={18} />
-                <h3 className="font-semibold text-[#3d3d3d]">Meldingen</h3>
+                <h3 className="font-semibold text-[#3d3d3d]">{t('title')}</h3>
                 {pendingCount > 0 && (
                   <span className="px-2 py-0.5 bg-[#eb5b0c] text-white text-xs rounded-full">
-                    {pendingCount} te beoordelen
+                    {pendingCount} {t('toReview')}
                   </span>
                 )}
               </div>
@@ -259,7 +263,7 @@ export default function NotificationCenter() {
                   onClick={syncReviews}
                   disabled={syncing}
                   className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-                  title="Synchroniseer reviews"
+                  title={t('sync')}
                 >
                   <RefreshCw size={16} className={`text-gray-500 ${syncing ? "animate-spin" : ""}`} />
                 </button>
@@ -268,7 +272,7 @@ export default function NotificationCenter() {
                     onClick={markAllRead}
                     className="text-xs text-[#6bbc4a] hover:underline"
                   >
-                    Alles gelezen
+                    {t('markAllRead')}
                   </button>
                 )}
                 <button
@@ -288,7 +292,7 @@ export default function NotificationCenter() {
                   className="text-xs text-gray-400 hover:text-red-500 hover:underline ml-2"
                   title="Verwijder afgehandelde meldingen"
                 >
-                  Wis lijst
+                  {t('clearList')}
                 </button>
               </div>
             </div>
@@ -302,12 +306,12 @@ export default function NotificationCenter() {
               ) : notifications.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <Bell className="mx-auto mb-2 text-gray-300" size={32} />
-                  <p>Geen meldingen</p>
+                  <p>{t('noNotifications')}</p>
                   <button
                     onClick={syncReviews}
                     className="mt-2 text-sm text-[#6bbc4a] hover:underline"
                   >
-                    Reviews ophalen
+                    {t('sync')}
                   </button>
                 </div>
               ) : (
@@ -317,7 +321,7 @@ export default function NotificationCenter() {
                     <div>
                       <div className="px-4 py-2 bg-orange-50 text-xs font-medium text-[#eb5b0c] flex items-center gap-1">
                         <Clock size={12} />
-                        Te beoordelen ({pendingNotifications.length})
+                        {t('pending')} ({pendingNotifications.length})
                       </div>
                       {pendingNotifications.map((notification) => (
                         <button
@@ -342,14 +346,14 @@ export default function NotificationCenter() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
                                 <p className="font-medium text-sm text-[#3d3d3d] truncate">
-                                  {notification.reviewAuthor || "Anoniem"}
+                                  {notification.reviewAuthor || t('anonymous')}
                                 </p>
                                 <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
                                   {new Date(notification.createdAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
                               <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                                {notification.reviewText || "Geen tekst"}
+                                {notification.reviewText || t('noText')}
                               </p>
                             </div>
                           </div>
@@ -362,7 +366,7 @@ export default function NotificationCenter() {
                   {otherNotifications.length > 0 && (
                     <div>
                       <div className="px-4 py-2 bg-gray-50 text-xs font-medium text-gray-500">
-                        Verwerkt
+                        {t('processed')}
                       </div>
                       {otherNotifications.slice(0, 10).map((notification) => (
                         <button
@@ -377,14 +381,14 @@ export default function NotificationCenter() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
                                 <p className="font-medium text-sm text-[#3d3d3d] truncate">
-                                  {notification.reviewAuthor || "Anoniem"}
+                                  {notification.reviewAuthor || t('anonymous')}
                                 </p>
                                 <span className={`text-xs px-1.5 py-0.5 rounded ${notification.status === "approved" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                                  {notification.status === "approved" ? "Beantwoord" : "Overgeslagen"}
+                                  {notification.status === "approved" ? t('answered') : t('skipped')}
                                 </span>
                               </div>
                               <p className="text-xs text-gray-500 mt-1 truncate">
-                                {notification.reviewText || "Geen tekst"}
+                                {notification.reviewText || t('noText')}
                               </p>
                             </div>
                           </div>
@@ -425,7 +429,7 @@ export default function NotificationCenter() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-[#3d3d3d]">
-                        {selectedNotification.reviewAuthor || "Anoniem"}
+                        {selectedNotification.reviewAuthor || t('anonymous')}
                       </h3>
                       <p className="text-xs text-gray-400">
                         {formatDate(selectedNotification.reviewDate)}
@@ -449,7 +453,7 @@ export default function NotificationCenter() {
                     <span className="text-xs text-gray-500 font-medium">Review</span>
                   </div>
                   <p className="text-sm text-[#3d3d3d]">
-                    {selectedNotification.reviewText || "Geen review tekst"}
+                    {selectedNotification.reviewText || t('noText')}
                   </p>
                 </div>
 
@@ -458,14 +462,14 @@ export default function NotificationCenter() {
                   {aiEnabled ? (
                     <div className="flex items-center gap-2 mb-3">
                       <Sparkles size={16} className="text-[#6bbc4a]" />
-                      <span className="text-sm font-medium text-[#3d3d3d]">AI-gegenereerde reactie</span>
+                      <span className="text-sm font-medium text-[#3d3d3d]">{t('aiResponse')}</span>
                     </div>
                   ) : (
                     <div className="mb-3 p-3 bg-gradient-to-r from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20 rounded-xl flex items-start gap-3">
                       <Sparkles className="text-[#6bbc4a] flex-shrink-0 mt-0.5" size={16} />
                       <div>
                         <p className="text-sm text-[#3d3d3d] font-medium">
-                          {useTranslations("AI")('modalUpsell') || "Wilt u reacties genereren met AI? Neem contact op met uw account specialist om te upgraden."}
+                          {useTranslations("AI")('modalUpsell')}
                         </p>
                       </div>
                     </div>
@@ -501,7 +505,7 @@ export default function NotificationCenter() {
                     onClick={dismissNotification}
                     className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors text-sm"
                   >
-                    Overslaan
+                    {t('skip')}
                   </button>
                   <button
                     onClick={approveResponse}
@@ -513,7 +517,7 @@ export default function NotificationCenter() {
                     ) : (
                       <Send size={16} />
                     )}
-                    Reactie plaatsen
+                    {t('sendResponse')}
                   </button>
                 </div>
               )}
@@ -524,10 +528,10 @@ export default function NotificationCenter() {
                     {selectedNotification.status === "approved" ? (
                       <span className="flex items-center justify-center gap-2">
                         <CheckCircle size={16} />
-                        Reactie is geplaatst
+                        {t('successResponse')}
                       </span>
                     ) : (
-                      <span>Deze melding is overgeslagen</span>
+                      <span>{t('skipped')}</span>
                     )}
                   </div>
                 </div>

@@ -372,7 +372,7 @@ export default function InviteContent() {
               </div>
               <h3 className="text-lg font-bold text-[#3d3d3d] mb-2">{t('qrCode')}</h3>
               <p className="text-sm text-gray-500 mb-6">
-                Laat klanten deze code scannen voor een directe review.
+                {t('qrText')}
               </p>
 
               {reviewUrl ? (

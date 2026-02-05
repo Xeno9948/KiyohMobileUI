@@ -370,9 +370,9 @@ export default function ReviewsContent() {
 
                     <div className="flex-1 min-w-0">
                       {/* Header */}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
-                        <span className="font-semibold text-[#3d3d3d]">{review?.reviewAuthor || "Anoniem"}</span>
-                        <div className="flex gap-0.5">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
+                        <span className="font-semibold text-[#3d3d3d] mr-1">{review?.reviewAuthor || "Anoniem"}</span>
+                        <div className="flex gap-0.5 mt-0.5">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
                               key={star}
