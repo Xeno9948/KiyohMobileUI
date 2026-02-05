@@ -171,7 +171,7 @@ export default function InviteContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[#3d3d3d]">{t('directLink')}</p>
-                  <p className="text-xs text-gray-500 truncate">{reviewUrl}</p>
+                  <p className="text-xs text-gray-500 break-all">{reviewUrl}</p>
                 </div>
                 <button
                   onClick={copyToClipboard}
