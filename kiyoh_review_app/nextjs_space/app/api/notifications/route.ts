@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 
 async function generateAIResponse(companyName: string, reviewAuthor: string, rating: number, reviewText: string): Promise<string> {
   if (!reviewText || reviewText.length < 5) return "";
-  
+
   try {
     const isPositive = rating >= 7;
     const isNeutral = rating >= 5 && rating < 7;
@@ -157,10 +157,15 @@ export async function POST(request: NextRequest) {
       if (existing) continue;
 
       // Extract review content
+      // Extract review content
+      const oneliner = review.reviewContent?.find((c: any) => c.questionGroup === "DEFAULT_ONELINER")?.rating;
+      const opinion = review.reviewContent?.find((c: any) => c.questionGroup === "DEFAULT_OPINION")?.rating;
+
+      // Fallback to other possible keys if defaults are missing
       const positive = review.reviewContent?.find((c: any) => c.questionGroup === "positive")?.rating;
-      const negative = review.reviewContent?.find((c: any) => c.questionGroup === "negative")?.rating;
       const general = review.reviewContent?.find((c: any) => c.questionGroup === "general_opinion")?.rating;
-      const reviewText = positive || general || negative || "";
+
+      const reviewText = (opinion || oneliner || positive || general || "").toString();
       const rating = review.rating || 0;
 
       // Generate AI response using Abacus AI
@@ -174,7 +179,7 @@ export async function POST(request: NextRequest) {
           reviewAuthor: review.reviewAuthor || "Anoniem",
           reviewRating: rating,
           reviewText,
-          reviewDate: review.dateSince ? new Date(review.dateSince) : new Date(),
+          reviewDate: review.dateSince ? new Date(review.dateSince) : (review.updatedSince ? new Date(review.updatedSince) : new Date()),
           suggestedResponse,
           status: "pending",
           isRead: false,
