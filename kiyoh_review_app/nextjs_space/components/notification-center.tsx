@@ -1,4 +1,5 @@
-"use client";
+
+import { useRouter } from "next/navigation";
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +19,7 @@ interface Notification {
 }
 
 export default function NotificationCenter() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -27,7 +29,7 @@ export default function NotificationCenter() {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [editedResponse, setEditedResponse] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [actionResult, setActionResult] = useState<{type: "success" | "error", message: string} | null>(null);
+  const [actionResult, setActionResult] = useState<{ type: "success" | "error", message: string } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export default function NotificationCenter() {
     setSelectedNotification(notification);
     setEditedResponse(notification.suggestedResponse || "");
     setActionResult(null);
-    
+
     // Mark as read
     if (!notification.isRead) {
       fetch("/api/notifications", {
@@ -102,7 +104,7 @@ export default function NotificationCenter() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notificationId: notification.id, isRead: true }),
       });
-      setNotifications(notifications.map(n => 
+      setNotifications(notifications.map(n =>
         n.id === notification.id ? { ...n, isRead: true } : n
       ));
       setUnreadCount(Math.max(0, unreadCount - 1));
@@ -111,10 +113,10 @@ export default function NotificationCenter() {
 
   const approveResponse = async () => {
     if (!selectedNotification || !editedResponse.trim()) return;
-    
+
     setSubmitting(true);
     setActionResult(null);
-    
+
     try {
       // Submit the response to Kiyoh
       const res = await fetch("/api/kiyoh/moderation/response", {
@@ -136,12 +138,12 @@ export default function NotificationCenter() {
           body: JSON.stringify({ notificationId: selectedNotification.id, status: "approved" }),
         });
 
-        setNotifications(notifications.map(n => 
+        setNotifications(notifications.map(n =>
           n.id === selectedNotification.id ? { ...n, status: "approved" as const } : n
         ));
         setPendingCount(Math.max(0, pendingCount - 1));
         setActionResult({ type: "success", message: "Reactie succesvol geplaatst!" });
-        
+
         setTimeout(() => {
           setSelectedNotification(null);
         }, 1500);
@@ -158,7 +160,7 @@ export default function NotificationCenter() {
 
   const dismissNotification = async () => {
     if (!selectedNotification) return;
-    
+
     try {
       await fetch("/api/notifications", {
         method: "PATCH",
@@ -166,7 +168,7 @@ export default function NotificationCenter() {
         body: JSON.stringify({ notificationId: selectedNotification.id, status: "dismissed" }),
       });
 
-      setNotifications(notifications.map(n => 
+      setNotifications(notifications.map(n =>
         n.id === selectedNotification.id ? { ...n, status: "dismissed" as const } : n
       ));
       setPendingCount(Math.max(0, pendingCount - 1));
@@ -188,7 +190,7 @@ export default function NotificationCenter() {
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    
+
     if (diffHours < 1) return "Zojuist";
     if (diffHours < 24) return `${diffHours}u geleden`;
     if (diffHours < 48) return "Gisteren";
@@ -283,7 +285,17 @@ export default function NotificationCenter() {
                       {pendingNotifications.map((notification) => (
                         <button
                           key={notification.id}
-                          onClick={() => handleNotificationClick(notification)}
+                          onClick={() => {
+                            // Mark as read and navigate
+                            if (!notification.isRead) {
+                              fetch("/api/notifications", {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ notificationId: notification.id, isRead: true }),
+                              });
+                            }
+                            router.push('/reviews');
+                          }}
                           className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 ${!notification.isRead ? "bg-blue-50/30" : ""}`}
                         >
                           <div className="flex items-start gap-3">
@@ -296,18 +308,12 @@ export default function NotificationCenter() {
                                   {notification.reviewAuthor || "Anoniem"}
                                 </p>
                                 <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
-                                  {formatDate(notification.createdAt)}
+                                  {new Date(notification.createdAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
                               <p className="text-xs text-gray-500 mt-1 line-clamp-2">
                                 {notification.reviewText || "Geen tekst"}
                               </p>
-                              {notification.suggestedResponse && (
-                                <div className="mt-2 flex items-center gap-1 text-xs text-[#6bbc4a]">
-                                  <Sparkles size={10} />
-                                  <span>AI reactie klaar</span>
-                                </div>
-                              )}
                             </div>
                           </div>
                         </button>
