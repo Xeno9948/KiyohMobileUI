@@ -17,10 +17,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Review text required" }, { status: 400 });
     }
 
-    // Fetch system settings for AI provider
-    const settings = await prisma.systemSettings.findUnique({
-      where: { id: "global" },
-    });
+    // Fetch user and system settings
+    const [user, settings] = await Promise.all([
+      prisma.user.findUnique({
+        where: { email: session.user.email! },
+        include: { company: true },
+      }),
+      prisma.systemSettings.findUnique({ where: { id: "global" } })
+    ]);
+
+    if (!user?.company) {
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    }
+
+    const companyName = user.company.name;
 
     const aiProvider = settings?.aiProvider || "openai";
     const aiApiKey = settings?.aiApiKey || process.env.OPENAI_API_KEY;
@@ -28,24 +38,20 @@ export async function POST(request: NextRequest) {
 
     console.log(`Generating AI response using provider: ${aiProvider}`);
 
-    const isPositive = rating >= 7;
-    const isNeutral = rating >= 5 && rating < 7;
-    const sentimentPrompt = isPositive
-      ? "Bedank de klant hartelijk voor de positieve review"
-      : isNeutral
-        ? "Bedank voor de feedback en bied verbetering aan"
-        : "Toon begrip, bied excuses aan en geef aan hoe je het wilt oplossen";
+    const systemPrompt = `You are a customer service agent for ${companyName}.
+Your task is to write a professional, friendly response to a customer review.
+IMPORTANT: Detect the language of the review and write your response IN THE SAME LANGUAGE.
 
-    const systemPrompt = `Je bent een klantenservice medewerker. Schrijf een professionele, vriendelijke reactie op een klantreview in het Nederlands.
-Richtlijnen:
-- Houd het kort en persoonlijk (2-4 zinnen)
-- Begin met de naam van de klant als deze bekend is
-- ${sentimentPrompt}
-- Eindig met een uitnodiging om terug te komen of contact op te nemen
-- Geen formele aanhef of afsluiting nodig
-- Schrijf in de eerste persoon meervoud (wij)`;
+Guidelines:
+- Keep it short and personal (2-4 sentences).
+- Start with the customer's name if known.
+- If positive (${rating}/10): Thank them warmly.
+- If neutral (${rating}/10): Thank them for feedback and offer improvement.
+- If negative (${rating}/10): Show empathy, apologize, and suggest a solution.
+- End with a welcoming closing.
+- Use "we" (first person plural).`;
 
-    const userPrompt = `Klant: ${reviewAuthor || "Anoniem"}\nBeoordeling: ${rating}/10\nReview: ${reviewText}`;
+    const userPrompt = `Customer: ${reviewAuthor || "Anonymous"}\nRating: ${rating}/10\nReview: "${reviewText}"`;
 
     let suggestedResponse = "";
 

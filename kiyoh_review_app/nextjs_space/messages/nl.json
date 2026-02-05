@@ -11,6 +11,40 @@
     "ThemeToggle": {
         "toggle": "Thema wisselen"
     },
+    "Invite": {
+        "title": "Review Uitnodigingen",
+        "subtitle": "Stuur uitnodigingen naar klanten om een review achter te laten",
+        "directLink": "Directe review link",
+        "copy": "Kopieer link",
+        "copied": "Link gekopieerd!",
+        "newInvite": "Nieuwe uitnodiging",
+        "email": "E-mailadres",
+        "emailPlaceholder": "klant@voorbeeld.nl",
+        "firstName": "Voornaam",
+        "firstNamePlaceholder": "Jan",
+        "lastName": "Achternaam",
+        "lastNamePlaceholder": "Jansen",
+        "delay": "Vertraging (dagen)",
+        "delayOptions": {
+            "0": "Direct versturen",
+            "1": "1 dag",
+            "2": "2 dagen",
+            "3": "3 dagen",
+            "7": "1 week",
+            "14": "2 weken"
+        },
+        "send": "Uitnodiging versturen",
+        "sending": "Verzenden...",
+        "success": "Uitnodiging succesvol verzonden!",
+        "recentInvites": "Recente uitnodigingen",
+        "noInvites": "Nog geen uitnodigingen verstuurd",
+        "status": {
+            "sent": "Verstuurd",
+            "pending": "Gepland"
+        },
+        "qrCode": "QR Code",
+        "downloadQr": "Download QR"
+    },
     "Admin": {
         "title": "Beheer Dashboard",
         "subtitle": "Beheer gebruikers, bedrijven en AI instellingen",

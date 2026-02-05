@@ -11,6 +11,40 @@
     "ThemeToggle": {
         "toggle": "Toggle theme"
     },
+    "Invite": {
+        "title": "Review Invites",
+        "subtitle": "Send invitations to customers to leave a review",
+        "directLink": "Direct Review Link",
+        "copy": "Copy link",
+        "copied": "Link copied!",
+        "newInvite": "New Invite",
+        "email": "Email Address",
+        "emailPlaceholder": "customer@example.com",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "John",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Doe",
+        "delay": "Delay (days)",
+        "delayOptions": {
+            "0": "Send immediately",
+            "1": "1 day",
+            "2": "2 days",
+            "3": "3 days",
+            "7": "1 week",
+            "14": "2 weeks"
+        },
+        "send": "Send Invitation",
+        "sending": "Sending...",
+        "success": "Invitation sent successfully!",
+        "recentInvites": "Recent Invites",
+        "noInvites": "No invitations sent yet",
+        "status": {
+            "sent": "Sent",
+            "pending": "Scheduled"
+        },
+        "qrCode": "QR Code",
+        "downloadQr": "Download QR"
+    },
     "Admin": {
         "title": "Admin Dashboard",
         "subtitle": "Manage users, companies and AI settings",
