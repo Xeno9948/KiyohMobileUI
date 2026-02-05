@@ -10,6 +10,14 @@
   --kiyoh-dark: #3d3d3d;
   --kiyoh-gray: #f5f5f5;
   --kiyoh-border: #e8e8e8;
+  --kiyoh-card-bg: #ffffff;
+}
+
+.dark {
+  --kiyoh-dark: #f5f5f5;
+  --kiyoh-gray: #1a1a1a;
+  --kiyoh-border: #333333;
+  --kiyoh-card-bg: #262626;
 }
 
 * {
@@ -24,7 +32,7 @@ body {
 
 /* Glass Card - Kiyoh Style */
 .kiyoh-card {
-  background: white;
+  background: var(--kiyoh-card-bg);
   border-radius: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid var(--kiyoh-border);
@@ -43,21 +51,19 @@ body {
 }
 
 .rating-circle-bg {
-  background: conic-gradient(
-    from 135deg,
-    var(--kiyoh-red) 0deg,
-    var(--kiyoh-orange) 72deg,
-    var(--kiyoh-yellow) 144deg,
-    var(--kiyoh-green) 216deg,
-    var(--kiyoh-green) 270deg,
-    transparent 270deg
-  );
+  background: conic-gradient(from 135deg,
+      var(--kiyoh-red) 0deg,
+      var(--kiyoh-orange) 72deg,
+      var(--kiyoh-yellow) 144deg,
+      var(--kiyoh-green) 216deg,
+      var(--kiyoh-green) 270deg,
+      transparent 270deg);
   border-radius: 50%;
   padding: 12px;
 }
 
 .rating-circle-inner {
-  background: white;
+  background: var(--kiyoh-card-bg);
   border-radius: 50%;
   width: 100%;
   height: 100%;
@@ -71,7 +77,7 @@ body {
 
 /* Stat Box */
 .stat-box {
-  background: white;
+  background: var(--kiyoh-card-bg);
   border: 1px solid var(--kiyoh-border);
   border-radius: 12px;
   padding: 16px 20px;
@@ -124,7 +130,7 @@ body {
 }
 
 .btn-secondary {
-  background: white;
+  background: var(--kiyoh-card-bg);
   color: var(--kiyoh-dark);
   padding: 12px 24px;
   border-radius: 10px;
@@ -147,7 +153,7 @@ body {
   border-radius: 10px;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: white;
+  background: var(--kiyoh-card-bg);
   color: var(--kiyoh-dark);
 }
 
@@ -171,30 +177,31 @@ body {
 @media (max-width: 640px) {
   .kiyoh-input {
     padding: 12px 14px;
-    font-size: 16px; /* Prevents iOS zoom on focus */
+    font-size: 16px;
+    /* Prevents iOS zoom on focus */
   }
-  
+
   .kiyoh-input.with-icon,
   .kiyoh-input-with-icon {
     padding-left: 44px;
   }
-  
+
   .stat-box {
     padding: 12px 14px;
   }
-  
+
   .stat-value {
     font-size: 1.25rem;
   }
-  
+
   .overview-card {
     padding: 16px;
   }
-  
+
   .review-card {
     padding: 16px;
   }
-  
+
   .btn-kiyoh {
     padding: 12px 20px;
     font-size: 0.9rem;
@@ -205,13 +212,12 @@ body {
 .sentiment-bar {
   height: 8px;
   border-radius: 4px;
-  background: linear-gradient(90deg, 
-    var(--kiyoh-red) 0%, 
-    var(--kiyoh-orange) 25%, 
-    var(--kiyoh-yellow) 50%, 
-    var(--kiyoh-green) 75%,
-    var(--kiyoh-green) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--kiyoh-red) 0%,
+      var(--kiyoh-orange) 25%,
+      var(--kiyoh-yellow) 50%,
+      var(--kiyoh-green) 75%,
+      var(--kiyoh-green) 100%);
 }
 
 /* Filter Tags */
@@ -220,7 +226,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: white;
+  background: var(--kiyoh-card-bg);
   border: 1px solid var(--kiyoh-border);
   border-radius: 20px;
   font-size: 0.9rem;
@@ -242,7 +248,7 @@ body {
 
 /* Review Card */
 .review-card {
-  background: white;
+  background: var(--kiyoh-card-bg);
   border-radius: 16px;
   padding: 24px;
   border: 1px solid var(--kiyoh-border);
@@ -269,14 +275,14 @@ body {
 
 /* Header */
 .header-nav {
-  background: white;
+  background: var(--kiyoh-card-bg);
   border-bottom: 1px solid var(--kiyoh-border);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 /* Sidebar Overview */
 .overview-card {
-  background: white;
+  background: var(--kiyoh-card-bg);
   border-radius: 16px;
   padding: 24px;
   border: 1px solid var(--kiyoh-border);
@@ -312,8 +318,15 @@ body {
 
 /* Animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -323,7 +336,7 @@ body {
 /* Dropdown */
 .kiyoh-select {
   appearance: none;
-  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  background: var(--kiyoh-card-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
   padding: 10px 36px 10px 14px;
   border: 1px solid var(--kiyoh-border);
   border-radius: 8px;
@@ -343,7 +356,9 @@ body {
 }
 
 /* Hide hydration errors */
-[data-hydration-error] { display: none !important; }
+[data-hydration-error] {
+  display: none !important;
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar {
@@ -370,7 +385,7 @@ body {
   position: absolute;
   width: 16px;
   height: 16px;
-  background: white;
+  background: var(--kiyoh-card-bg);
   border-radius: 50%;
   border: 3px solid var(--kiyoh-green);
   transform: rotate(var(--rotation)) translateY(-68px);
