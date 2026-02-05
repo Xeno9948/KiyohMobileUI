@@ -75,9 +75,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "AI configuration missing" }, { status: 500 });
     }
 
+    const body = await request.json().catch(() => ({}));
+    const language = body.language || "Dutch";
+
     let content = "";
     const systemPrompt = `You are an expert in analyzing customer reviews. Analyze the following reviews and identify the 3 most important strong points of this company.
-Provide short, concise points in Dutch (max 3-4 words per point).
+Provide short, concise points in ${language} (max 3-4 words per point).
 OUTPUT FORMAT: Return ONLY a raw JSON array of strings (e.g., ["Point 1", "Point 2", "Point 3"]). Do not include markdown code blocks or extra text.`;
     const userPrompt = `Reviews:\n${reviewTexts.join("\n\n")}`;
 

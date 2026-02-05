@@ -6,6 +6,9 @@ import { Star, TrendingUp, Users, MessageSquare, RefreshCw, Settings, ArrowRight
 import Link from "next/link";
 import Image from "next/image";
 
+// Header imports
+import { useLanguage } from "@/components/language-context";
+
 interface Statistics {
   averageRating?: number;
   numberReviews?: number;
@@ -19,80 +22,17 @@ interface Statistics {
   threeStars?: number;
   twoStars?: number;
   oneStars?: number;
+  aiEnabled?: boolean;
 }
 
-interface Review {
-  reviewId?: string;
-  reviewAuthor?: string;
-  rating?: number;
-  dateSince?: string;
-  reviewContent?: Array<{
-    questionGroup?: string;
-    rating?: string | number | boolean;
-  }>;
-}
-
-import { useTranslations } from "@/hooks/use-translations";
+// ... existing code ...
 
 export default function DashboardContent() {
   const t = useTranslations("Dashboard");
+  const { locale } = useLanguage();
   const [stats, setStats] = useState<Statistics | null>(null);
-  const [recentReview, setRecentReview] = useState<Review | null>(null);
-  const [strongPoints, setStrongPoints] = useState<string[]>([]);
-  const [loadingStrongPoints, setLoadingStrongPoints] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [needsSetup, setNeedsSetup] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsRes, reviewsRes] = await Promise.all([
-          fetch("/api/kiyoh/statistics"),
-          fetch("/api/kiyoh/reviews?limit=1")
-        ]);
-
-        const statsData = await statsRes.json();
-        const reviewsData = await reviewsRes.json();
-
-        if (statsData.needsSetup || reviewsData.needsSetup) {
-          setNeedsSetup(true);
-        } else {
-          setStats(statsData);
-          setRecentReview(reviewsData?.reviews?.[0] || null);
-
-          // Auto-sync notifications and analyze reviews on login
-          syncAndAnalyze();
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Sync notifications and analyze reviews on login
-  const syncAndAnalyze = async () => {
-    try {
-      // Sync new reviews and generate AI responses
-      fetch("/api/notifications", { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-          if (data.newReviews > 0) {
-            console.log(`Synced ${data.newReviews} new reviews with AI responses`);
-          }
-        })
-        .catch(err => console.error("Notification sync error:", err));
-
-      // Fetch or generate strong points
-      fetchStrongPoints();
-    } catch (error) {
-      console.error("Failed to sync and analyze:", error);
-    }
-  };
-
+  // ... fetchStrongPoints ...
   const fetchStrongPoints = async () => {
     try {
       // First try to get cached strong points
@@ -104,7 +44,10 @@ export default function DashboardContent() {
       } else {
         // Generate new strong points
         setLoadingStrongPoints(true);
-        const res = await fetch("/api/ai/analyze-reviews", { method: "POST" });
+        const res = await fetch("/api/ai/analyze-reviews", {
+          method: "POST",
+          body: JSON.stringify({ language: locale })
+        });
         const data = await res.json();
         if (data.strongPoints) {
           setStrongPoints(data.strongPoints);
@@ -120,7 +63,10 @@ export default function DashboardContent() {
   const refreshStrongPoints = async () => {
     setLoadingStrongPoints(true);
     try {
-      const res = await fetch("/api/ai/analyze-reviews", { method: "POST" });
+      const res = await fetch("/api/ai/analyze-reviews", {
+        method: "POST",
+        body: JSON.stringify({ language: locale })
+      });
       const data = await res.json();
       if (data.strongPoints) {
         setStrongPoints(data.strongPoints);
@@ -132,6 +78,34 @@ export default function DashboardContent() {
     }
   };
 
+  // ...
+
+  {/* AI Upsell (Only if AI disabled) */ }
+  {
+    (!loading && stats && stats.aiEnabled === false) && (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="p-5 rounded-xl bg-gradient-to-br from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20"
+      >
+        <div className="flex gap-3">
+          <div className="p-2 bg-white rounded-lg shadow-sm h-fit">
+            <Sparkles className="text-[#6bbc4a]" size={20} />
+          </div>
+          <div>
+            <h4 className="font-semibold text-[#3d3d3d]">{useTranslations("AI")('upsellTitle')}</h4>
+            <p className="text-sm text-gray-600 mt-1 mb-2">
+              {useTranslations("AI")('upsellText')}
+            </p>
+            <p className="text-xs text-[#6bbc4a] font-medium">
+              {useTranslations("AI")('contactAdvisor')}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
   const formatNumber = (num?: number) => {
     if (!num) return "0";
     return num.toLocaleString("nl-NL");
@@ -466,27 +440,29 @@ export default function DashboardContent() {
               I'll add a fetch for user settings in useEffect or just render it if strongPoints fails. 
               Actually, the user said "under the review oversight". 
           */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="p-5 rounded-xl bg-gradient-to-br from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20"
-          >
-            <div className="flex gap-3">
-              <div className="p-2 bg-white rounded-lg shadow-sm h-fit">
-                <Sparkles className="text-[#6bbc4a]" size={20} />
+          {(!loading && stats && stats.aiEnabled === false) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="p-5 rounded-xl bg-gradient-to-br from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20"
+            >
+              <div className="flex gap-3">
+                <div className="p-2 bg-white rounded-lg shadow-sm h-fit">
+                  <Sparkles className="text-[#6bbc4a]" size={20} />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-[#3d3d3d]">{useTranslations("AI")('upsellTitle')}</h4>
+                  <p className="text-sm text-gray-600 mt-1 mb-2">
+                    {useTranslations("AI")('upsellText')}
+                  </p>
+                  <p className="text-xs text-[#6bbc4a] font-medium">
+                    {useTranslations("AI")('contactAdvisor')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold text-[#3d3d3d]">{useTranslations("AI")('upsellTitle')}</h4>
-                <p className="text-sm text-gray-600 mt-1 mb-2">
-                  {useTranslations("AI")('upsellText')}
-                </p>
-                <p className="text-xs text-[#6bbc4a] font-medium">
-                  {useTranslations("AI")('contactAdvisor')}
-                </p>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

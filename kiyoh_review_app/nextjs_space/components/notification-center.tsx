@@ -271,6 +271,25 @@ export default function NotificationCenter() {
                     Alles gelezen
                   </button>
                 )}
+                <button
+                  onClick={async () => {
+                    try {
+                      await fetch("/api/notifications", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ archiveAll: true }),
+                      });
+                      // Keep only pending notifications locally
+                      setNotifications(notifications.filter(n => n.status === "pending"));
+                    } catch (err) {
+                      console.error("Failed to clear notifications", err);
+                    }
+                  }}
+                  className="text-xs text-gray-400 hover:text-red-500 hover:underline ml-2"
+                  title="Verwijder afgehandelde meldingen"
+                >
+                  Wis lijst
+                </button>
               </div>
             </div>
 

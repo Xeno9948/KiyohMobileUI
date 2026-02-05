@@ -23,15 +23,15 @@ export async function GET(req: NextRequest) {
     });
 
     if (!user?.company) {
-      return NextResponse.json({ 
-        error: "No company configured", 
+      return NextResponse.json({
+        error: "No company configured",
         needsSetup: true,
-        message: "Please configure your Kiyoh API credentials in Settings" 
+        message: "Please configure your Kiyoh API credentials in Settings"
       }, { status: 400 });
     }
 
     const company = user.company;
-    
+
     // Fetch from the reviews endpoint which includes star distribution data
     // The /location/statistics endpoint doesn't return fiveStars, fourStars, etc.
     const url = `${company.baseUrl}/v1/publication/review/external?locationId=${company.locationId}&tenantId=${company.tenantId}&limit=1`;
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await response.json();
-    
+
     // The response includes location stats with star distribution
     return NextResponse.json({
       locationId: data.locationId,
@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
       oneStars: data.oneStars || 0,
       viewReviewUrl: data.viewReviewUrl,
       createReviewUrl: data.createReviewUrl,
+      aiEnabled: company.aiEnabled,
     });
   } catch (error: any) {
     return NextResponse.json({ error: "Failed to fetch statistics", details: error?.message }, { status: 500 });

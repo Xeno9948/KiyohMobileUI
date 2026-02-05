@@ -72,7 +72,10 @@ export async function GET(request: NextRequest) {
     }
 
     const notifications = await prisma.reviewNotification.findMany({
-      where: { companyId: user.company.id },
+      where: {
+        companyId: user.company.id,
+        status: { not: "archived" }
+      },
       orderBy: { createdAt: "desc" },
       take: 50,
     });
@@ -242,7 +245,18 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ needsSetup: true }, { status: 400 });
     }
 
-    const { notificationId, status, isRead, markAllRead } = await request.json();
+    const { notificationId, status, isRead, markAllRead, archiveAll } = await request.json();
+
+    if (archiveAll) {
+      await prisma.reviewNotification.updateMany({
+        where: {
+          companyId: user.company.id,
+          status: { not: "pending" } // Only archive processed notifications
+        },
+        data: { status: "archived" },
+      });
+      return NextResponse.json({ success: true });
+    }
 
     if (markAllRead) {
       await prisma.reviewNotification.updateMany({
