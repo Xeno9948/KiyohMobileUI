@@ -289,44 +289,46 @@ export default function ReviewsContent() {
 
       {/* Filters */}
       <div className="kiyoh-card p-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="text-sm font-medium text-gray-600">{t('filters')}</span>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-sm font-medium text-gray-600">{t('filters')}</span>
 
-          {/* Star Rating Filter */}
-          <div className="flex items-center gap-1">
-            {[5, 4, 3, 2, 1].map((stars) => (
-              <button
-                key={stars}
-                onClick={() => setRatingFilter(ratingFilter === stars ? null : stars)}
-                className={`filter-tag ${ratingFilter === stars ? 'active' : ''}`}
-              >
-                <Star size={14} fill={ratingFilter === stars ? "white" : "#ffcc01"} color={ratingFilter === stars ? "white" : "#ffcc01"} />
-                {stars}
-              </button>
-            ))}
+            {/* Star Rating Filter */}
+            <div className="flex items-center gap-1">
+              {[5, 4, 3, 2, 1].map((stars) => (
+                <button
+                  key={stars}
+                  onClick={() => setRatingFilter(ratingFilter === stars ? null : stars)}
+                  className={`filter-tag ${ratingFilter === stars ? 'active' : ''}`}
+                >
+                  <Star size={14} fill={ratingFilter === stars ? "white" : "#ffcc01"} color={ratingFilter === stars ? "white" : "#ffcc01"} />
+                  {stars}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex-1"></div>
-
           {/* Sort Options */}
-          <select
-            value={orderBy}
-            onChange={(e) => { setOrderBy(e.target.value); setPage(1); }}
-            className="kiyoh-select"
-          >
-            <option value="CREATE_DATE">{t('sortDate')}</option>
-            <option value="UPDATE_DATE">{t('sortUpdate')}</option>
-            <option value="RATING">{t('sortRating')}</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              value={orderBy}
+              onChange={(e) => { setOrderBy(e.target.value); setPage(1); }}
+              className="kiyoh-select"
+            >
+              <option value="CREATE_DATE">{t('sortDate')}</option>
+              <option value="UPDATE_DATE">{t('sortUpdate')}</option>
+              <option value="RATING">{t('sortRating')}</option>
+            </select>
 
-          <select
-            value={sortOrder}
-            onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
-            className="kiyoh-select"
-          >
-            <option value="DESC">{t('sortDesc')}</option>
-            <option value="ASC">{t('sortAsc')}</option>
-          </select>
+            <select
+              value={sortOrder}
+              onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
+              className="kiyoh-select"
+            >
+              <option value="DESC">{t('sortDesc')}</option>
+              <option value="ASC">{t('sortAsc')}</option>
+            </select>
+          </div>
         </div>
       </div>
 

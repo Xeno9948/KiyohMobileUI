@@ -326,23 +326,23 @@ export default function InviteContent() {
                 {recentInvites.map((invite) => (
                   <div
                     key={invite.id}
-                    className="p-4 bg-gray-50 rounded-xl flex items-center justify-between"
+                    className="p-4 bg-gray-50 rounded-xl flex items-center justify-between gap-4"
                   >
-                    <div>
-                      <p className="font-medium text-[#3d3d3d]">{invite.email}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-[#3d3d3d] truncate">{invite.email}</p>
                       {(invite.firstName || invite.lastName) && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 truncate">
                           {invite.firstName} {invite.lastName}
                         </p>
                       )}
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                       <span
                         className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${invite.status === "sent"
-                            ? "bg-green-100 text-green-600"
-                            : invite.status === "pending"
-                              ? "bg-yellow-100 text-yellow-600"
-                              : "bg-gray-100 text-gray-600"
+                          ? "bg-green-100 text-green-600"
+                          : invite.status === "pending"
+                            ? "bg-yellow-100 text-yellow-600"
+                            : "bg-gray-100 text-gray-600"
                           }`}
                       >
                         {invite.status === "sent" ? t('status.sent') : invite.status === "pending" ? t('status.pending') : invite.status}
