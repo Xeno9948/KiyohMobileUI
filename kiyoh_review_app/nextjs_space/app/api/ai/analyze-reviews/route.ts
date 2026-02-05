@@ -76,11 +76,28 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const language = body.language || "Dutch";
+    const body = await request.json().catch(() => ({}));
+    const localeParams = body.language || "nl";
 
-    let content = "";
+    // Map locale code to full English name for better AI prompting
+    const languageMap: Record<string, string> = {
+      nl: "Dutch",
+      en: "English",
+      de: "German",
+      fr: "French",
+      es: "Spanish",
+      it: "Italian",
+      af: "Afrikaans",
+      xh: "Xhosa",
+      zu: "Zulu"
+    };
+
+    // Use full name if mapped, otherwise default to the code itself (or Dutch as fallback)
+    const languageName = languageMap[localeParams] || localeParams || "Dutch";
+
     const systemPrompt = `You are an expert in analyzing customer reviews. Analyze the following reviews and identify the 3 most important strong points of this company.
-Provide short, concise points in ${language} (max 3-4 words per point).
+Provide short, concise points in ${languageName} (max 3-4 words per point).
+IMPORTANT: The output MUST be in ${languageName}, regardless of the language of the reviews. Translate if necessary.
 OUTPUT FORMAT: Return ONLY a raw JSON array of strings (e.g., ["Point 1", "Point 2", "Point 3"]). Do not include markdown code blocks or extra text.`;
     const userPrompt = `Reviews:\n${reviewTexts.join("\n\n")}`;
 
@@ -163,8 +180,8 @@ OUTPUT FORMAT: Return ONLY a raw JSON array of strings (e.g., ["Point 1", "Point
       strongPoints = ["Goede service", "Betrouwbaar", "Klantvriendelijk"];
     }
 
-    // Update specific language
-    currentData[language] = strongPoints;
+    // Update specific language using the locale code (e.g., 'nl', 'en')
+    currentData[localeParams] = strongPoints;
 
     // Cache strong points in database
     await prisma.company.update({
