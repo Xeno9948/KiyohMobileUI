@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Users, CheckCircle, Clock, Star, Search, Filter, RefreshCw, Key, Copy, AlertCircle, Loader2, X, Building2, Sparkles, ToggleLeft, ToggleRight, Edit2 } from "lucide-react";
@@ -37,7 +36,6 @@ interface Company {
 type TabType = "users" | "companies";
 
 export default function AdminContent() {
-  const t = useTranslations('Admin');
   const [activeTab, setActiveTab] = useState<TabType>("users");
   const [users, setUsers] = useState<User[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -205,7 +203,7 @@ export default function AdminContent() {
 
       setTempPassword(data.tempPassword);
     } catch (err: any) {
-      setError(err.message || "Kon wachtwoord niet resetten");
+      setError(err.message || "Failed to reset password");
     } finally {
       setResetting(false);
     }
@@ -223,7 +221,7 @@ export default function AdminContent() {
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleDateString("nl-NL", {
+    return new Date(dateStr).toLocaleDateString("en-US", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -234,8 +232,8 @@ export default function AdminContent() {
     <div className="space-y-6">
 
       <div>
-        <h1 className="text-2xl font-bold text-[#3d3d3d]">{t('title')}</h1>
-        <p className="text-gray-500">{t('subtitle')}</p>
+        <h1 className="text-2xl font-bold text-[#3d3d3d]">Admin Dashboard</h1>
+        <p className="text-gray-500">Manage users and companies</p>
       </div>
 
       {/* Tabs */}
@@ -248,7 +246,7 @@ export default function AdminContent() {
             }`}
         >
           <Users size={16} className="inline-block mr-2" />
-          {t('tabs.users')}
+          Users
         </button>
         <button
           onClick={() => setActiveTab("companies")}
@@ -258,7 +256,7 @@ export default function AdminContent() {
             }`}
         >
           <Building2 size={16} className="inline-block mr-2" />
-          {t('tabs.companies')}
+          Companies
         </button>
       </div>
 
@@ -267,10 +265,10 @@ export default function AdminContent() {
         activeTab === "users" ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: t('stats.totalUsers'), value: userStats.total, icon: Users, color: "#6bbc4a" },
-              { label: t('stats.apiConfigured'), value: userStats.apiConfigured, icon: CheckCircle, color: "#6bbc4a" },
-              { label: t('stats.activeRecently'), value: userStats.activeRecently, icon: Clock, color: "#ffcc01" },
-              { label: t('stats.totalReviews'), value: userStats.totalReviews.toLocaleString("nl-NL"), icon: Star, color: "#eb5b0c" },
+              { label: "Total Users", value: userStats.total, icon: Users, color: "#6bbc4a" },
+              { label: "API Configured", value: userStats.apiConfigured, icon: CheckCircle, color: "#6bbc4a" },
+              { label: "Active Recently", value: userStats.activeRecently, icon: Clock, color: "#ffcc01" },
+              { label: "Total Reviews", value: userStats.totalReviews.toLocaleString("en-US"), icon: Star, color: "#eb5b0c" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -297,10 +295,10 @@ export default function AdminContent() {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: t('stats.totalCompanies'), value: companyStats.total, icon: Building2, color: "#6bbc4a" },
-              { label: t('stats.aiEnabled'), value: companyStats.aiEnabled, icon: Sparkles, color: "#6bbc4a" },
-              { label: t('stats.totalUsers'), value: companyStats.totalUsers, icon: Users, color: "#ffcc01" },
-              { label: t('stats.sentInvites'), value: companyStats.totalInvites.toLocaleString("nl-NL"), icon: CheckCircle, color: "#eb5b0c" },
+              { label: "Total Companies", value: companyStats.total, icon: Building2, color: "#6bbc4a" },
+              { label: "AI Enabled", value: companyStats.aiEnabled, icon: Sparkles, color: "#6bbc4a" },
+              { label: "Total Users", value: companyStats.totalUsers, icon: Users, color: "#ffcc01" },
+              { label: "Invites Sent", value: companyStats.totalInvites.toLocaleString("en-US"), icon: CheckCircle, color: "#eb5b0c" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -339,12 +337,12 @@ export default function AdminContent() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="kiyoh-input pl-11"
-                  placeholder={t('searchPlaceholder')}
+                  placeholder="Search users..."
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">{t('filterApi')}</span>
+                <span className="text-sm text-gray-500">Filter API:</span>
                 {[
                   { value: "all", label: "All" },
                   { value: "yes", label: "Yes" },
@@ -362,7 +360,7 @@ export default function AdminContent() {
 
               <button onClick={fetchUsers} className="btn-secondary flex items-center gap-2">
                 <RefreshCw size={16} />
-                {t('refresh')}
+                Refresh
               </button>
             </div>
           </div>
@@ -375,7 +373,7 @@ export default function AdminContent() {
           <div className="flex justify-end">
             <button onClick={fetchCompanies} className="btn-secondary flex items-center gap-2">
               <RefreshCw size={16} />
-              {t('refresh')}
+              Refresh
             </button>
           </div>
         )
@@ -394,20 +392,20 @@ export default function AdminContent() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.user')}</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.company')}</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.api')}</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.reviews')}</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.invites')}</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.lastActive')}</th>
-                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">{t('table.actions')}</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">User</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Company</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">API</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Reviews</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Invites</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Last Active</th>
+                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-12 text-gray-500">
-                        {t('searchPlaceholder')}
+                        No users found matching search.
                       </td>
                     </tr>
                   ) : (
@@ -456,7 +454,7 @@ export default function AdminContent() {
                             className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
                           >
                             <Key size={14} />
-                            {t('actions.reset')}
+                            Reset
                           </button>
                         </td>
                       </tr>
@@ -473,20 +471,20 @@ export default function AdminContent() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.company')}</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.locationId')}</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('stats.totalUsers')}</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.invites')}</th>
-                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">{t('table.created')}</th>
-                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">{t('table.ai')}</th>
-                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">{t('table.actions')}</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Company</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Location ID</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Total Users</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">Invites</th>
+                    <th className="text-left py-4 px-5 text-sm font-semibold text-gray-600">Created</th>
+                    <th className="text-center py-4 px-5 text-sm font-semibold text-gray-600">AI</th>
+                    <th className="text-right py-4 px-5 text-sm font-semibold text-gray-600">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {companies.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-12 text-gray-500">
-                        {t('searchPlaceholder')}
+                        No companies found.
                       </td>
                     </tr>
                   ) : (
@@ -525,7 +523,7 @@ export default function AdminContent() {
                             ) : (
                               <ToggleLeft size={16} />
                             )}
-                            {company.aiEnabled ? t('actions.on') : t('actions.off')}
+                            {company.aiEnabled ? "On" : "Off"}
                           </button>
                         </td>
                       </tr>
@@ -549,7 +547,7 @@ export default function AdminContent() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-[#3d3d3d]">{t('modals.resetTitle')}</h3>
+                <h3 className="text-xl font-bold text-[#3d3d3d]">Reset Password</h3>
                 <button onClick={closeResetModal} className="p-2 hover:bg-gray-100 rounded-full">
                   <X size={20} className="text-gray-500" />
                 </button>
@@ -558,7 +556,7 @@ export default function AdminContent() {
               {tempPassword ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-green-50 rounded-xl">
-                    <p className="text-sm text-green-700 mb-2">{t('modals.tempPassword')} {resetModal.email}:</p>
+                    <p className="text-sm text-green-700 mb-2">Temporary password for {resetModal.email}:</p>
                     <div className="flex items-center gap-2">
                       <code className="flex-1 bg-white px-3 py-2 rounded-lg font-mono text-[#3d3d3d] border border-green-200">
                         {tempPassword}
@@ -569,16 +567,16 @@ export default function AdminContent() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Deel dit wachtwoord veilig met de gebruiker. Ze moeten het bij eerste login wijzigen.
+                    Share this password safely. They should change it upon first login.
                   </p>
                   <button onClick={closeResetModal} className="w-full btn-kiyoh justify-center">
-                    {t('actions.cancel')}
+                    Done
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <p className="text-gray-600">
-                    {t('modals.resetConfirm')} <strong>{resetModal.email}</strong>?
+                    Are you sure you want to reset the password for <strong>{resetModal.email}</strong>?
                   </p>
 
                   {error && (
@@ -590,11 +588,11 @@ export default function AdminContent() {
 
                   <div className="flex gap-3">
                     <button onClick={closeResetModal} className="flex-1 btn-secondary">
-                      {t('actions.cancel')}
+                      Cancel
                     </button>
                     <button onClick={handleResetPassword} disabled={resetting} className="flex-1 btn-kiyoh justify-center disabled:opacity-50">
                       {resetting ? <Loader2 className="animate-spin" size={18} /> : <Key size={18} />}
-                      {resetting ? "Resetting..." : t('modals.resetTitle')}
+                      {resetting ? "Resetting..." : "Reset Password"}
                     </button>
                   </div>
                 </div>
@@ -614,7 +612,7 @@ export default function AdminContent() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-[#3d3d3d]">{t('modals.editTitle')}</h3>
+                <h3 className="text-xl font-bold text-[#3d3d3d]">Edit Company</h3>
                 <button onClick={closeEditModal} className="p-2 hover:bg-gray-100 rounded-full">
                   <X size={20} className="text-gray-500" />
                 </button>
@@ -622,7 +620,7 @@ export default function AdminContent() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">{t('modals.companyName')}</label>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Company Name</label>
                   <input
                     type="text"
                     value={editForm.name}
@@ -632,7 +630,7 @@ export default function AdminContent() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">{t('table.locationId')}</label>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Location ID</label>
                   <input
                     type="text"
                     value={editForm.locationId}
@@ -642,7 +640,7 @@ export default function AdminContent() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">{t('modals.updateToken')}</label>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">Update Token</label>
                   <input
                     type="text"
                     value={editForm.apiToken}
@@ -662,11 +660,11 @@ export default function AdminContent() {
 
                 <div className="flex gap-3 pt-2">
                   <button onClick={closeEditModal} className="flex-1 btn-secondary">
-                    {t('actions.cancel')}
+                    Cancel
                   </button>
                   <button onClick={handleSaveCompany} disabled={savingCompany} className="flex-1 btn-kiyoh justify-center disabled:opacity-50">
                     {savingCompany ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
-                    {savingCompany ? t('actions.save') : t('actions.save')}
+                    {savingCompany ? "Save Changes" : "Save Changes"}
                   </button>
                 </div>
               </div>
