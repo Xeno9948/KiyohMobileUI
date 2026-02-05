@@ -13,12 +13,7 @@
   --kiyoh-card-bg: #ffffff;
 }
 
-.dark {
-  --kiyoh-dark: #f5f5f5;
-  --kiyoh-gray: #1a1a1a;
-  --kiyoh-border: #333333;
-  --kiyoh-card-bg: #262626;
-}
+
 
 * {
   box-sizing: border-box;

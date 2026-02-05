@@ -220,6 +220,68 @@ export default function DashboardContent() {
     );
   }
 
+  const ReviewOverviewCard = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className="overview-card"
+    >
+      <h3 className="overview-title">{t('overview')}</h3>
+
+      <div className="mb-4">
+        <div className="flex items-center justify-between text-sm mb-2">
+          <span className="text-gray-600">{t('positiveSentiment')}</span>
+          <span className="font-semibold text-[#6bbc4a]">{calculateSentiment()}%</span>
+        </div>
+        <div className="sentiment-bar"></div>
+      </div>
+
+      <p className="text-gray-600 text-sm mb-4">
+        {stats?.locationName || "Your business"} {t('summary')} {(stats?.averageRating || 0).toFixed(1)} {t('outOf')} {stats?.recommendation || 0}% {t('recommendationText')}
+      </p>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            <Sparkles className="text-[#6bbc4a]" size={16} />
+            <span className="font-medium text-[#6bbc4a]">{t('strongPoints')}</span>
+          </div>
+          <button
+            onClick={refreshStrongPoints}
+            disabled={loadingStrongPoints}
+            className="text-xs text-gray-400 hover:text-[#6bbc4a] transition-colors"
+            title="Opnieuw analyseren"
+          >
+            <RefreshCw size={12} className={loadingStrongPoints ? "animate-spin" : ""} />
+          </button>
+        </div>
+        {loadingStrongPoints ? (
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <RefreshCw size={14} className="animate-spin" />
+            <span>{t('analyzing')}</span>
+          </div>
+        ) : strongPoints.length > 0 ? (
+          strongPoints.map((point, index) => (
+            <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+              <Check size={16} className="text-[#6bbc4a]" />
+              <span>{point}</span>
+            </div>
+          ))
+        ) : (
+          <div className="text-sm text-gray-400">
+            {t('clickToAnalyze')}
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
+        <Sparkles size={12} />
+        {t('aiAnalysis').replace('{count}', formatNumber(stats?.numberReviews))}
+      </p>
+    </motion.div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -309,6 +371,11 @@ export default function DashboardContent() {
           </motion.div>
 
           {/* Recent Review */}
+          {/* AI Summary (Mobile Only) */}
+          <div className="block lg:hidden">
+            <ReviewOverviewCard />
+          </div>
+
           {recentReview && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -363,66 +430,10 @@ export default function DashboardContent() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Review Overview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="overview-card"
-          >
-            <h3 className="overview-title">{t('overview')}</h3>
-
-            <div className="mb-4">
-              <div className="flex items-center justify-between text-sm mb-2">
-                <span className="text-gray-600">{t('positiveSentiment')}</span>
-                <span className="font-semibold text-[#6bbc4a]">{calculateSentiment()}%</span>
-              </div>
-              <div className="sentiment-bar"></div>
-            </div>
-
-            <p className="text-gray-600 text-sm mb-4">
-              {stats?.locationName || "Your business"} {t('summary')} {(stats?.averageRating || 0).toFixed(1)} {t('outOf')} {stats?.recommendation || 0}% {t('recommendationText')}
-            </p>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="text-[#6bbc4a]" size={16} />
-                  <span className="font-medium text-[#6bbc4a]">{t('strongPoints')}</span>
-                </div>
-                <button
-                  onClick={refreshStrongPoints}
-                  disabled={loadingStrongPoints}
-                  className="text-xs text-gray-400 hover:text-[#6bbc4a] transition-colors"
-                  title="Opnieuw analyseren"
-                >
-                  <RefreshCw size={12} className={loadingStrongPoints ? "animate-spin" : ""} />
-                </button>
-              </div>
-              {loadingStrongPoints ? (
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <RefreshCw size={14} className="animate-spin" />
-                  <span>{t('analyzing')}</span>
-                </div>
-              ) : strongPoints.length > 0 ? (
-                strongPoints.map((point, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check size={16} className="text-[#6bbc4a]" />
-                    <span>{point}</span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-sm text-gray-400">
-                  {t('clickToAnalyze')}
-                </div>
-              )}
-            </div>
-
-            <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
-              <Sparkles size={12} />
-              {t('aiAnalysis').replace('{count}', formatNumber(stats?.numberReviews))}
-            </p>
-          </motion.div>
+          {/* Review Overview (Desktop Only) */}
+          <div className="hidden lg:block">
+            <ReviewOverviewCard />
+          </div>
 
           {/* Verified Badge */}
           <motion.div
