@@ -1,34 +1,74 @@
 {
     "Header": {
-        "dashboard": "Tableau de Bord",
+        "dashboard": "Tableau de bord",
         "reviews": "Avis",
         "invites": "Invitations",
         "settings": "Paramètres",
-        "admin": "Admin",
+        "admin": "Administration",
         "profile": "Profil",
         "logout": "Déconnexion"
     },
     "ThemeToggle": {
         "toggle": "Changer de thème"
     },
+    "AI": {
+        "upsellTitle": "Passez à Kiyoh AI",
+        "upsellText": "Automatisez vos réponses et obtenez des informations plus approfondies avec Kiyoh AI.",
+        "contactAdvisor": "Contactez votre conseiller pour activer cette fonctionnalité.",
+        "modalUpsell": "Voulez-vous générer des réponses avec l'IA ? Contactez votre spécialiste de compte pour effectuer une mise à niveau."
+    },
+    "Invite": {
+        "title": "Invitations d'avis",
+        "subtitle": "Envoyez des invitations aux clients pour laisser un avis",
+        "directLink": "Lien direct d'avis",
+        "copy": "Copier le lien",
+        "copied": "Lien copié !",
+        "newInvite": "Nouvelle invitation",
+        "email": "Adresse e-mail",
+        "emailPlaceholder": "client@exemple.fr",
+        "firstName": "Prénom",
+        "firstNamePlaceholder": "Jean",
+        "lastName": "Nom",
+        "lastNamePlaceholder": "Dupont",
+        "delay": "Délai (jours)",
+        "delayOptions": {
+            "0": "Envoyer immédiatement",
+            "1": "1 jour",
+            "2": "2 jours",
+            "3": "3 jours",
+            "7": "1 semaine",
+            "14": "2 semaines"
+        },
+        "send": "Envoyer l'invitation",
+        "sending": "Envoi...",
+        "success": "Invitation envoyée avec succès !",
+        "recentInvites": "Invitations récentes",
+        "noInvites": "Aucune invitation envoyée pour le moment",
+        "status": {
+            "sent": "Envoyé",
+            "pending": "Prévu"
+        },
+        "qrCode": "Code QR",
+        "downloadQr": "Télécharger le QR"
+    },
     "Admin": {
-        "title": "Tableau de Bord Admin",
-        "subtitle": "Gérer les utilisateurs, les entreprises et les paramètres IA",
+        "title": "Tableau de bord Admin",
+        "subtitle": "Gérer les utilisateurs, les entreprises et les paramètres d'IA",
         "tabs": {
             "users": "Utilisateurs",
-            "companies": "Entreprises & IA"
+            "companies": "Entreprises et IA"
         },
         "stats": {
-            "totalUsers": "Total Utilisateurs",
-            "apiConfigured": "API Configurée",
-            "activeRecently": "Actif (24h)",
-            "totalReviews": "Total Avis",
-            "totalCompanies": "Total Entreprises",
-            "aiEnabled": "IA Activée",
-            "sentInvites": "Invitations Envoyées"
+            "totalUsers": "Total utilisateurs",
+            "apiConfigured": "API configurée",
+            "activeRecently": "Actifs (24h)",
+            "totalReviews": "Total avis",
+            "totalCompanies": "Total entreprises",
+            "aiEnabled": "IA activée",
+            "sentInvites": "Invitations envoyées"
         },
-        "searchPlaceholder": "Rechercher par nom, email ou entreprise...",
-        "filterApi": "API:",
+        "searchPlaceholder": "Rechercher par nom, e-mail ou entreprise...",
+        "filterApi": "API :",
         "refresh": "Actualiser",
         "table": {
             "user": "Utilisateur",
@@ -36,9 +76,9 @@
             "api": "API",
             "reviews": "Avis",
             "invites": "Invitations",
-            "lastActive": "Dernière Activité",
+            "lastActive": "Dernière activité",
             "actions": "Actions",
-            "locationId": "ID Emplacement",
+            "locationId": "ID de localisation",
             "created": "Créé",
             "ai": "IA"
         },
@@ -47,8 +87,8 @@
             "save": "Enregistrer",
             "cancel": "Annuler",
             "edit": "Modifier",
-            "on": "On",
-            "off": "Off"
+            "on": "Allumé",
+            "off": "Éteint"
         },
         "modals": {
             "resetTitle": "Réinitialiser le mot de passe",
@@ -59,20 +99,63 @@
             "updateToken": "Mettre à jour le jeton Kiyoh"
         }
     },
+    "Reviews": {
+        "title": "Avis",
+        "reviewsCount": "avis",
+        "refresh": "Actualiser",
+        "filters": "Filtres",
+        "sortDate": "Date (récent - ancien)",
+        "sortUpdate": "Dernière mise à jour",
+        "sortRating": "Note",
+        "sortDesc": "Décroissant",
+        "sortAsc": "Croissant",
+        "noReviews": "Aucun avis trouvé",
+        "responseBadge": "Réponse de l'entreprise",
+        "reply": "Répondre",
+        "changeRequest": "Demander modification",
+        "report": "Signaler",
+        "pagination": "{start} - {end} sur {total} avis",
+        "modals": {
+            "replyTitle": "Répondre à l'avis",
+            "changeTitle": "Demander une modification",
+            "reportTitle": "Signaler un avis",
+            "yourReply": "Votre réponse",
+            "placeholderPublic": "Rédigez votre réponse à cet avis...",
+            "placeholderAI": "Cliquez sur 'Générer avec l'IA' ou écrivez vous-même...",
+            "type": "Type de réponse",
+            "public": "Public",
+            "private": "Privé",
+            "publicDesc": "Réponse visible par tous",
+            "privateDesc": "Réponse visible uniquement par l'auteur",
+            "emailNotify": "Envoyer une notification par e-mail à l'auteur",
+            "send": "Envoyer la réponse",
+            "sending": "Envoi...",
+            "changeText": "Un e-mail sera envoyé à l'auteur pour lui demander de modifier son avis.",
+            "reportReason": "Raison du signalement",
+            "reportPlaceholder": "Expliquez pourquoi cet avis doit être signalé...",
+            "reportNote": "Remarque : Les signalements sont examinés par l'équipe de modération de Kiyoh.",
+            "sendReport": "Envoyer le signalement",
+            "aiGenerate": "Générer avec l'IA",
+            "aiGenerating": "L'IA génère...",
+            "successReply": "Réponse envoyée avec succès !",
+            "successChange": "Demande de modification envoyée !",
+            "successReport": "Signalement envoyé avec succès !"
+        }
+    },
     "Dashboard": {
         "title": "Avis pour",
         "refresh": "Actualiser",
-        "totalScore": "Score total",
-        "totalReviews": "Total des avis",
+        "totalScore": "Note totale",
+        "totalReviews": "Nombre total d'avis",
         "recommends": "Nous recommandent",
-        "average12Months": "Moyenne sur 12 mois",
+        "average12Months": "Moyenne 12 mois",
         "reviewsLast12Months": "avis au cours des 12 derniers mois",
         "sendInvite": "Envoyer une invitation",
         "latestReview": "Dernier avis",
         "viewAll": "Voir tous les avis",
         "overview": "Aperçu des avis",
         "positiveSentiment": "Sentiment positif",
-        "summary": "obtient une moyenne de",
+        "summary": "a une moyenne de",
         "outOf": "sur 10, avec",
         "recommendationText": "recommandations.",
         "strongPoints": "Points forts",
@@ -81,8 +164,35 @@
         "aiAnalysis": "Analyse IA de",
         "verified": "Avis vérifiés",
         "distribution": "Distribution",
-        "setupTitle": "Configuration Requise",
-        "setupText": "Connectez votre compte Kiyoh pour commencer à gérer vos avis. Vous aurez besoin de votre ID d'emplacement et de votre jeton API.",
-        "configureBtn": "Configurer les paramètres API"
+        "setupTitle": "Installation requise",
+        "setupText": "Connectez votre compte Kiyoh pour gérer vos avis. Vous aurez besoin de votre identifiant de localisation et de votre jeton API.",
+        "configureBtn": "Configurer l'API"
+    },
+    "Settings": {
+        "title": "Paramètres",
+        "subtitle": "Gérez votre connexion API Kiyoh",
+        "apiConfigTitle": "Configuration API Kiyoh",
+        "apiConfigSubtitle": "Connectez votre compte Kiyoh",
+        "companyName": "Nom de l'entreprise",
+        "companyPlaceholder": "Votre nom d'entreprise",
+        "locationId": "Identifiant de localisation",
+        "locationHint": "Trouvable dans votre tableau de bord Kiyoh sous paramètres",
+        "apiToken": "Jeton API",
+        "tokenPlaceholder": "Votre jeton API",
+        "tokenHint": "Laisser vide pour conserver le jeton actuel",
+        "platform": "Plateforme",
+        "tenantId": "Identifiant de locataire (Tenant ID)",
+        "save": "Enregistrer les paramètres",
+        "saving": "Enregistrement...",
+        "success": "Paramètres enregistrés avec succès !",
+        "error": "Impossible d'enregistrer les paramètres",
+        "helpTitle": "Où trouver mes informations API ?",
+        "helpStep1": "Connectez-vous à votre tableau de bord Kiyoh",
+        "helpStep2": "Allez dans \"Inviter\" → \"Options supplémentaires\"",
+        "helpStep3": "Copiez votre identifiant de localisation et votre jeton API",
+        "openDashboard": "Ouvrir le tableau de bord Kiyoh",
+        "currentConfig": "Configuration actuelle",
+        "status": "Statut",
+        "connected": "Connecté"
     }
 }

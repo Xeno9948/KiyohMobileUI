@@ -1,15 +1,55 @@
 {
     "Header": {
-        "dashboard": "Panel",
+        "dashboard": "Panel de control",
         "reviews": "Reseñas",
         "invites": "Invitaciones",
         "settings": "Ajustes",
-        "admin": "Admin",
+        "admin": "Administración",
         "profile": "Perfil",
         "logout": "Cerrar sesión"
     },
     "ThemeToggle": {
         "toggle": "Cambiar tema"
+    },
+    "AI": {
+        "upsellTitle": "Actualizar a Kiyoh AI",
+        "upsellText": "Automatice sus respuestas y obtenga información más profunda con Kiyoh AI.",
+        "contactAdvisor": "Contacte a su asesor de reseñas para activar esta función.",
+        "modalUpsell": "¿Desea generar respuestas con IA? Contacte a su especialista de cuenta para actualizar."
+    },
+    "Invite": {
+        "title": "Invitaciones de reseña",
+        "subtitle": "Envíe invitaciones a clientes para dejar una reseña",
+        "directLink": "Enlace directo de reseña",
+        "copy": "Copiar enlace",
+        "copied": "¡Enlace copiado!",
+        "newInvite": "Nueva invitación",
+        "email": "Correo electrónico",
+        "emailPlaceholder": "cliente@ejemplo.es",
+        "firstName": "Nombre",
+        "firstNamePlaceholder": "Juan",
+        "lastName": "Apellido",
+        "lastNamePlaceholder": "Pérez",
+        "delay": "Retraso (días)",
+        "delayOptions": {
+            "0": "Enviar inmediatamente",
+            "1": "1 día",
+            "2": "2 días",
+            "3": "3 días",
+            "7": "1 semana",
+            "14": "2 semanas"
+        },
+        "send": "Enviar invitación",
+        "sending": "Enviando...",
+        "success": "¡Invitación enviada con éxito!",
+        "recentInvites": "Invitaciones recientes",
+        "noInvites": "Aún no se han enviado invitaciones",
+        "status": {
+            "sent": "Enviado",
+            "pending": "Pendiente"
+        },
+        "qrCode": "Código QR",
+        "downloadQr": "Descargar QR"
     },
     "Admin": {
         "title": "Panel de Administración",
@@ -19,13 +59,13 @@
             "companies": "Empresas e IA"
         },
         "stats": {
-            "totalUsers": "Total Usuarios",
-            "apiConfigured": "API Configurada",
-            "activeRecently": "Activo (24h)",
-            "totalReviews": "Total Reseñas",
-            "totalCompanies": "Total Empresas",
-            "aiEnabled": "IA Activada",
-            "sentInvites": "Invitaciones Enviadas"
+            "totalUsers": "Total usuarios",
+            "apiConfigured": "API configurada",
+            "activeRecently": "Activos (24h)",
+            "totalReviews": "Total reseñas",
+            "totalCompanies": "Total empresas",
+            "aiEnabled": "IA activada",
+            "sentInvites": "Invitaciones enviadas"
         },
         "searchPlaceholder": "Buscar por nombre, correo o empresa...",
         "filterApi": "API:",
@@ -36,9 +76,9 @@
             "api": "API",
             "reviews": "Reseñas",
             "invites": "Invitaciones",
-            "lastActive": "Última Actividad",
+            "lastActive": "Última actividad",
             "actions": "Acciones",
-            "locationId": "ID de Ubicación",
+            "locationId": "ID de ubicación",
             "created": "Creado",
             "ai": "IA"
         },
@@ -47,16 +87,59 @@
             "save": "Guardar",
             "cancel": "Cancelar",
             "edit": "Editar",
-            "on": "On",
-            "off": "Off"
+            "on": "Encendido",
+            "off": "Apagado"
         },
         "modals": {
             "resetTitle": "Restablecer contraseña",
             "resetConfirm": "¿Está seguro de que desea restablecer la contraseña para",
             "tempPassword": "Contraseña temporal para",
-            "editTitle": "Editar Empresa",
-            "companyName": "Nombre de la Empresa",
-            "updateToken": "Actualizar Token de Kiyoh"
+            "editTitle": "Editar empresa",
+            "companyName": "Nombre de la empresa",
+            "updateToken": "Actualizar token de Kiyoh"
+        }
+    },
+    "Reviews": {
+        "title": "Reseñas",
+        "reviewsCount": "reseñas",
+        "refresh": "Actualizar",
+        "filters": "Filtros",
+        "sortDate": "Fecha (nuevo - antiguo)",
+        "sortUpdate": "Última actualización",
+        "sortRating": "Calificación",
+        "sortDesc": "Descendente",
+        "sortAsc": "Ascendente",
+        "noReviews": "No se encontraron reseñas",
+        "responseBadge": "Respuesta de la empresa",
+        "reply": "Responder",
+        "changeRequest": "Solicitar cambio",
+        "report": "Reportar",
+        "pagination": "{start} - {end} de {total} reseñas",
+        "modals": {
+            "replyTitle": "Responder a la reseña",
+            "changeTitle": "Solicitar cambio",
+            "reportTitle": "Reportar reseña",
+            "yourReply": "Su respuesta",
+            "placeholderPublic": "Escriba su respuesta a esta reseña...",
+            "placeholderAI": "Haga clic en 'Generar con IA' o escriba usted mismo...",
+            "type": "Tipo de respuesta",
+            "public": "Público",
+            "private": "Privado",
+            "publicDesc": "Respuesta visible para todos",
+            "privateDesc": "Respuesta solo para el revisor",
+            "emailNotify": "Enviar notificación por correo al revisor",
+            "send": "Enviar respuesta",
+            "sending": "Enviando...",
+            "changeText": "Se enviará un correo electrónico al revisor solicitando modificar la reseña.",
+            "reportReason": "Razón del reporte",
+            "reportPlaceholder": "Explique por qué se debe reportar esta reseña...",
+            "reportNote": "Nota: Los reportes son revisados por el equipo de moderación de Kiyoh.",
+            "sendReport": "Enviar reporte",
+            "aiGenerate": "Generar con IA",
+            "aiGenerating": "IA generando...",
+            "successReply": "¡Respuesta enviada con éxito!",
+            "successChange": "¡Solicitud de cambio enviada!",
+            "successReport": "¡Reporte enviado con éxito!"
         }
     },
     "Dashboard": {
@@ -67,7 +150,7 @@
         "recommends": "Nos recomiendan",
         "average12Months": "Promedio 12 meses",
         "reviewsLast12Months": "reseñas en los últimos 12 meses",
-        "sendInvite": "Enviar invitación",
+        "sendInvite": "Enviar invitación de reseña",
         "latestReview": "Última reseña",
         "viewAll": "Ver todas las reseñas",
         "overview": "Resumen de reseñas",
@@ -81,8 +164,35 @@
         "aiAnalysis": "Análisis de IA de",
         "verified": "Reseñas verificadas",
         "distribution": "Distribución",
-        "setupTitle": "Configuración Requerida",
-        "setupText": "Conecte su cuenta de Kiyoh para comenzar a gestionar sus reseñas. Necesitará su ID de Ubicación y Token de API.",
-        "configureBtn": "Configurar Ajustes de API"
+        "setupTitle": "Configuración requerida",
+        "setupText": "Conecte su cuenta de Kiyoh para gestionar sus reseñas. Necesita su ID de ubicación y Token de API.",
+        "configureBtn": "Configurar ajustes de API"
+    },
+    "Settings": {
+        "title": "Ajustes",
+        "subtitle": "Gestione su conexión API de Kiyoh",
+        "apiConfigTitle": "Configuración de API Kiyoh",
+        "apiConfigSubtitle": "Conecte su cuenta de Kiyoh",
+        "companyName": "Nombre de la empresa",
+        "companyPlaceholder": "Su nombre de empresa",
+        "locationId": "ID de ubicación",
+        "locationHint": "Se encuentra en su panel de Kiyoh bajo configuración",
+        "apiToken": "Token de API",
+        "tokenPlaceholder": "Su token de API",
+        "tokenHint": "Dejar en blanco para mantener el token actual",
+        "platform": "Plataforma",
+        "tenantId": "ID de inquilino (Tenant ID)",
+        "save": "Guardar ajustes",
+        "saving": "Guardando...",
+        "success": "¡Ajustes guardados con éxito!",
+        "error": "No se pudieron guardar los ajustes",
+        "helpTitle": "¿Dónde encuentro mis datos de API?",
+        "helpStep1": "Inicie sesión en su panel de Kiyoh",
+        "helpStep2": "Vaya a \"Invitar\" → \"Opciones extra\"",
+        "helpStep3": "Copie su ID de ubicación y Token de API",
+        "openDashboard": "Abrir panel de Kiyoh",
+        "currentConfig": "Configuración actual",
+        "status": "Estado",
+        "connected": "Conectado"
     }
 }
