@@ -289,12 +289,13 @@ export default function ReviewsContent() {
 
       {/* Filters */}
       <div className="kiyoh-card p-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="space-y-4">
+          {/* Star Rating Filter - Full width on mobile */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <span className="text-sm font-medium text-gray-600">{t('filters')}</span>
 
             {/* Star Rating Filter */}
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-2">
               {[5, 4, 3, 2, 1].map((stars) => (
                 <button
                   key={stars}
@@ -308,8 +309,8 @@ export default function ReviewsContent() {
             </div>
           </div>
 
-          {/* Sort Options */}
-          <div className="flex items-center gap-2">
+          {/* Sort Options - Stack vertically on mobile */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <select
               value={orderBy}
               onChange={(e) => { setOrderBy(e.target.value); setPage(1); }}

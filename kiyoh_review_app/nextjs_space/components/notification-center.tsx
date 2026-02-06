@@ -281,13 +281,16 @@ export default function NotificationCenter() {
                         body: JSON.stringify({ archiveAll: true }),
                       });
                       // Keep only pending notifications locally
-                      setNotifications(notifications.filter(n => n.status === "pending"));
+                      const pending = notifications.filter(n => n.status === "pending");
+                      setNotifications(pending);
+                      // Update unread count since we cleared processed items
+                      setUnreadCount(pending.filter(n => !n.isRead).length);
                     } catch (err) {
                       console.error("Failed to clear notifications", err);
                     }
                   }}
                   className="text-xs text-gray-400 hover:text-red-500 hover:underline ml-2"
-                  title="Verwijder afgehandelde meldingen"
+                  title={t('clearList')}
                 >
                   {t('clearList')}
                 </button>
