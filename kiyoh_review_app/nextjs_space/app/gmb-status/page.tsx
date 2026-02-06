@@ -63,9 +63,16 @@ export default function GMBStatusPage() {
                         </h3>
 
                         {status?.status === 429 && (
-                            <div className="text-red-700">
-                                <p className="font-bold">⚠️ Quota is still 0.</p>
-                                <p className="text-sm mt-1">Google has not yet propagated your billing usage. Please keep this page open and wait.</p>
+                            <div className="text-red-700 bg-red-50 p-4 rounded border border-red-200">
+                                <p className="font-bold text-lg">⚠️ Waiting for Google (Quota 0)</p>
+                                <p className="mt-2 text-sm">
+                                    <strong>Good news:</strong> You successfully enabled the correct API! <br />
+                                    <strong>Bad news:</strong> Google takes 15-60 minutes to update your quota after billing is added.
+                                </p>
+                                <p className="mt-2 text-sm">
+                                    Ignore the "Dead Link" errors. You don't need to click anything else.
+                                    Just keep this page open until it turns green. 🍵
+                                </p>
                             </div>
                         )}
 
