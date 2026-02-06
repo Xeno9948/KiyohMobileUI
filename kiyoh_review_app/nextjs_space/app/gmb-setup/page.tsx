@@ -16,8 +16,10 @@ export default function GMBSetupPage() {
                 },
                 body: JSON.stringify({
                     companyId: 'cmlaqdoqk0000ob8yey5qfdwg',
-                    accountId: 'accounts/11535144745965350294',
-                    locationId: 'locations/11535144745965350294',
+                    // For v4 API: accounts/{id}/locations/{id}/reviews
+                    // Storing raw IDs - the API will build the full path
+                    accountId: '11535144745965350294',
+                    locationId: '11535144745965350294',
                 }),
             });
 
