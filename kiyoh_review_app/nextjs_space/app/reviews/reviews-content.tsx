@@ -261,7 +261,14 @@ export default function ReviewsContent() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Kon reactie niet verzenden");
+
+      if (!res.ok) {
+        // Handle specific Kiyoh permission error
+        if (data.details && data.details.includes("FEATURE_NOT_REVIEW_MODERATION_API")) {
+          throw new Error(t('errors.kiyohPlanRestriction') || "Your Kiyoh plan does not support replying via API. Please upgrade your Kiyoh subscription.");
+        }
+        throw new Error(data.error || t('errors.replyFailed'));
+      }
 
       setSuccessMessage(t('modals.successReply'));
       setTimeout(() => { closeModal(); fetchReviews(); }, 1500);

@@ -34,20 +34,25 @@ export async function PUT(request: NextRequest) {
 
     const { locationId, apiToken, tenantId, baseUrl } = user.company;
 
+    const payload = {
+      locationId: locationId.trim(),
+      tenantId,
+      reviewId,
+      response,
+      reviewResponseType: responseType, // 'PRIVATE' or 'PUBLIC'
+      responseEmail: sendEmail ? 'true' : 'false',
+    };
+
+    console.log(`[Kiyoh] Submitting reply for review ${reviewId} to ${baseUrl}/v1/publication/review/response`);
+    console.log(`[Kiyoh] Payload:`, JSON.stringify(payload, null, 2));
+
     const apiResponse = await fetch(`${baseUrl}/v1/publication/review/response`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'X-Publication-Api-Token': apiToken,
       },
-      body: JSON.stringify({
-        locationId: locationId.trim(),
-        tenantId,
-        reviewId,
-        response,
-        reviewResponseType: responseType, // 'PRIVATE' or 'PUBLIC'
-        responseEmail: sendEmail ? 'true' : 'false',
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!apiResponse.ok) {
