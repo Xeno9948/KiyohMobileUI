@@ -25,6 +25,9 @@ interface Statistics {
   twoStars?: number;
   oneStars?: number;
   aiEnabled?: boolean;
+  gmbEnabled?: boolean;
+  gmbAverageRating?: number;
+  gmbTotalReviews?: number;
 }
 
 // ... existing code ...
