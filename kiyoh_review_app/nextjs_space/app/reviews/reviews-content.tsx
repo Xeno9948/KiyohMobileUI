@@ -22,6 +22,15 @@ interface Review {
   reviewComments?: string;
 }
 
+interface GMBReview {
+  reviewId: string;
+  reviewer: string;
+  starRating: string; // "ONE", "TWO", etc.
+  comment: string;
+  createTime: string;
+  reviewReply?: string;
+}
+
 interface ReviewsResponse {
   reviews?: Review[];
   numberReviews?: number;
@@ -29,11 +38,22 @@ interface ReviewsResponse {
 }
 
 type ModalType = "reply" | "changeRequest" | "abuse" | null;
+type TabType = "kiyoh" | "google";
 
 export default function ReviewsContent() {
   const t = useTranslations("Reviews");
+  const [activeTab, setActiveTab] = useState<TabType>("kiyoh");
+
+  // Kiyoh State
   const [reviews, setReviews] = useState<Review[]>([]);
   const [totalReviews, setTotalReviews] = useState(0);
+
+  // GMB State
+  const [gmbReviews, setGmbReviews] = useState<GMBReview[]>([]);
+  const [gmbLoading, setGmbLoading] = useState(false);
+  const [gmbStats, setGmbStats] = useState({ average: 0, total: 0 });
+
+  // Shared State
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
@@ -44,7 +64,8 @@ export default function ReviewsContent() {
 
   // Moderation state
   const [modalType, setModalType] = useState<ModalType>(null);
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [selectedReview, setSelectedReview] = useState<Review | GMBReview | null>(null);
+  const [selectedReviewType, setSelectedReviewType] = useState<TabType>("kiyoh");
   const [replyText, setReplyText] = useState("");
   const [replyType, setReplyType] = useState<"PUBLIC" | "PRIVATE">("PUBLIC");
   const [sendEmail, setSendEmail] = useState(true);
@@ -53,6 +74,12 @@ export default function ReviewsContent() {
   const [successMessage, setSuccessMessage] = useState("");
   const [generatingAI, setGeneratingAI] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(true);
+
+  // Helper to convert GMB string rating to number
+  const getGmbRating = (ratingStr: string): number => {
+    const map: Record<string, number> = { "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5 };
+    return map[ratingStr] || 0;
+  };
 
   // Fetch AI status
   useEffect(() => {
@@ -89,9 +116,37 @@ export default function ReviewsContent() {
     }
   };
 
+  const fetchGMBReviews = async () => {
+    setGmbLoading(true);
+    try {
+      const res = await fetch("/api/gmb/reviews");
+      if (res.ok) {
+        const data = await res.json();
+        const reviews = data.reviews || [];
+        setGmbReviews(reviews);
+
+        // Calculate stats
+        const total = reviews.length;
+        const sum = reviews.reduce((acc: number, r: GMBReview) => acc + getGmbRating(r.starRating), 0);
+        setGmbStats({
+          average: total > 0 ? sum / total : 0,
+          total
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch GMB reviews", err);
+    } finally {
+      setGmbLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchReviews();
-  }, [page, orderBy, sortOrder]);
+    if (activeTab === "kiyoh") {
+      fetchReviews();
+    } else {
+      fetchGMBReviews();
+    }
+  }, [page, orderBy, sortOrder, activeTab]);
 
   const startIndex = (page - 1) * perPage;
   let filteredReviews = reviews?.slice?.(startIndex, startIndex + perPage) ?? [];
@@ -120,15 +175,17 @@ export default function ReviewsContent() {
     return content?.rating?.toString?.() ?? "";
   };
 
-  const getRatingColor = (rating: number) => {
-    if (rating >= 8) return "#6bbc4a";
-    if (rating >= 6) return "#ffcc01";
-    if (rating >= 4) return "#eb5b0c";
+  const getRatingColor = (rating: number, max: number = 10) => {
+    const percentage = rating / max;
+    if (percentage >= 0.8) return "#6bbc4a";
+    if (percentage >= 0.6) return "#ffcc01";
+    if (percentage >= 0.4) return "#eb5b0c";
     return "#e53935";
   };
 
-  const openModal = (type: ModalType, review: Review) => {
+  const openModal = (type: ModalType, review: Review | GMBReview, isGmb = false) => {
     setSelectedReview(review);
+    setSelectedReviewType(isGmb ? "google" : "kiyoh");
     setModalType(type);
     setReplyText("");
     setAbuseReason("");
@@ -274,15 +331,80 @@ export default function ReviewsContent() {
 
   return (
     <div className="space-y-6">
+      {/* Platform Tabs */}
+      <div className="flex p-1 bg-gray-100 rounded-xl w-fit">
+        <button
+          onClick={() => setActiveTab("kiyoh")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "kiyoh"
+            ? "bg-white text-[#3d3d3d] shadow-sm"
+            : "text-gray-500 hover:text-gray-700"
+            }`}
+        >
+          <div className="w-4 h-4 relative">
+            <img src="/kiyoh-logo.png" alt="Kiyoh" className="object-contain" />
+          </div>
+          Kiyoh
+        </button>
+        <button
+          onClick={() => setActiveTab("google")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "google"
+            ? "bg-white text-[#3d3d3d] shadow-sm"
+            : "text-gray-500 hover:text-gray-700"
+            }`}
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+          </svg>
+          Google
+        </button>
+      </div>
+
+      {activeTab === "google" && gmbStats.total > 0 && (
+        <div className="kiyoh-card p-4 flex items-center justify-between bg-white border border-gray-100">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Google Score</p>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-[#3d3d3d]">{gmbStats.average.toFixed(1)}</span>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} size={16} fill={star <= Math.round(gmbStats.average) ? "#ffcc01" : "#e8e8e8"} color={star <= Math.round(gmbStats.average) ? "#ffcc01" : "#e8e8e8"} />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-400">({gmbStats.total})</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#3d3d3d]">{t('title')}</h1>
-          <p className="text-gray-500">{totalReviews?.toLocaleString?.("nl-NL") ?? 0} {t('reviewsCount')}</p>
+          <h1 className="text-2xl font-bold text-[#3d3d3d]">
+            {activeTab === "kiyoh" ? t('title') : "Google Reviews"}
+          </h1>
+          <p className="text-gray-500">
+            {activeTab === "kiyoh"
+              ? `${totalReviews?.toLocaleString?.("nl-NL") ?? 0} ${t('reviewsCount')}`
+              : `${gmbStats.total} reviews synced`
+            }
+          </p>
         </div>
 
-        <button onClick={fetchReviews} className="btn-kiyoh">
-          <RefreshCw size={18} />
+        <button onClick={activeTab === "kiyoh" ? fetchReviews : fetchGMBReviews} className="btn-kiyoh">
+          <RefreshCw size={18} className={gmbLoading ? "animate-spin" : ""} />
           {t('refresh')}
         </button>
       </div>
@@ -347,106 +469,200 @@ export default function ReviewsContent() {
       ) : (
         <>
           <div className="space-y-4">
-            {filteredReviews?.length === 0 ? (
-              <div className="kiyoh-card p-8 text-center">
-                <p className="text-gray-500">{t('noReviews')}</p>
-              </div>
-            ) : (
-              filteredReviews?.map?.((review, index) => (
-                <motion.div
-                  key={review?.reviewId ?? index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                  className="review-card"
-                >
-                  <div className="flex items-start gap-4">
-                    {/* Rating Badge */}
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
-                      style={{ background: getRatingColor(review?.rating || 0) }}
-                    >
-                      {review?.rating || 0}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      {/* Header */}
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
-                        <span className="font-semibold text-[#3d3d3d] mr-1">{review?.reviewAuthor || "Anoniem"}</span>
-                        <div className="flex gap-0.5 mt-0.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              size={16}
-                              fill={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
-                              color={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
-                            />
-                          ))}
-                        </div>
-                        {review?.city && (
-                          <span className="flex items-center gap-1 text-sm text-gray-500">
-                            <MapPin size={14} />
-                            {review.city}
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1 text-sm text-gray-500">
-                          <Calendar size={14} />
-                          {formatDate(review?.dateSince)}
-                        </span>
+            {activeTab === "kiyoh" ? (
+              filteredReviews?.length === 0 ? (
+                <div className="kiyoh-card p-8 text-center">
+                  <p className="text-gray-500">{t('noReviews')}</p>
+                </div>
+              ) : (
+                filteredReviews?.map?.((review, index) => (
+                  <motion.div
+                    key={review?.reviewId ?? index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="review-card"
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Rating Badge */}
+                      <div
+                        className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                        style={{ background: getRatingColor(review?.rating || 0) }}
+                      >
+                        {review?.rating || 0}
                       </div>
 
-                      {/* Content */}
-                      {getReviewText(review, "DEFAULT_ONELINER") && (
-                        <p className="text-[#3d3d3d] font-medium mb-1">
-                          &ldquo;{getReviewText(review, "DEFAULT_ONELINER")}&rdquo;
-                        </p>
-                      )}
-
-                      {getReviewText(review, "DEFAULT_OPINION") && (
-                        <p className="text-gray-600 text-sm">
-                          {getReviewText(review, "DEFAULT_OPINION")}
-                        </p>
-                      )}
-
-                      {/* Business Response */}
-                      {review?.reviewComments && (
-                        <div className="response-badge mt-4">
-                          <div className="flex items-center gap-2 mb-1">
-                            <MessageSquare className="text-[#6bbc4a]" size={14} />
-                            <span className="text-[#6bbc4a] font-medium text-sm">{t('responseBadge')}</span>
+                      <div className="flex-1 min-w-0">
+                        {/* Header */}
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
+                          <span className="font-semibold text-[#3d3d3d] mr-1">{review?.reviewAuthor || "Anoniem"}</span>
+                          <div className="flex gap-0.5 mt-0.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                size={16}
+                                fill={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
+                                color={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
+                              />
+                            ))}
                           </div>
-                          <p className="text-gray-600 text-sm">{review.reviewComments}</p>
+                          {review?.city && (
+                            <span className="flex items-center gap-1 text-sm text-gray-500">
+                              <MapPin size={14} />
+                              {review.city}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1 text-sm text-gray-500">
+                            <Calendar size={14} />
+                            {formatDate(review?.dateSince)}
+                          </span>
                         </div>
-                      )}
 
-                      {/* Actions */}
-                      <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
-                        <button
-                          onClick={() => openModal("reply", review)}
-                          className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
-                        >
-                          <Reply size={14} />
-                          {t('reply')}
-                        </button>
-                        <button
-                          onClick={() => openModal("changeRequest", review)}
-                          className="filter-tag hover:border-[#ffcc01] hover:text-[#eb5b0c]"
-                        >
-                          <Edit3 size={14} />
-                          {t('changeRequest')}
-                        </button>
-                        <button
-                          onClick={() => openModal("abuse", review)}
-                          className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
-                        >
-                          <Flag size={14} />
-                          {t('report')}
-                        </button>
+                        {/* Content */}
+                        {getReviewText(review, "DEFAULT_ONELINER") && (
+                          <p className="text-[#3d3d3d] font-medium mb-1">
+                            &ldquo;{getReviewText(review, "DEFAULT_ONELINER")}&rdquo;
+                          </p>
+                        )}
+
+                        {getReviewText(review, "DEFAULT_OPINION") && (
+                          <p className="text-gray-600 text-sm">
+                            {getReviewText(review, "DEFAULT_OPINION")}
+                          </p>
+                        )}
+
+                        {/* Business Response */}
+                        {review?.reviewComments && (
+                          <div className="response-badge mt-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <MessageSquare className="text-[#6bbc4a]" size={14} />
+                              <span className="text-[#6bbc4a] font-medium text-sm">{t('responseBadge')}</span>
+                            </div>
+                            <p className="text-gray-600 text-sm">{review.reviewComments}</p>
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                          <button
+                            onClick={() => openModal("reply", review)}
+                            className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
+                          >
+                            <Reply size={14} />
+                            {t('reply')}
+                          </button>
+                          <button
+                            onClick={() => openModal("changeRequest", review)}
+                            className="filter-tag hover:border-[#ffcc01] hover:text-[#eb5b0c]"
+                          >
+                            <Edit3 size={14} />
+                            {t('changeRequest')}
+                          </button>
+                          <button
+                            onClick={() => openModal("abuse", review)}
+                            className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
+                          >
+                            <Flag size={14} />
+                            {t('report')}
+                          </button>
+                        </div>
                       </div>
                     </div>
+                  </motion.div>
+                ))
+              )
+            ) : (
+              // GMB Reviews List
+              gmbReviews.length === 0 ? (
+                <div className="kiyoh-card p-8 text-center bg-gray-50 border-dashed border-2 border-gray-200">
+                  <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                    </svg>
                   </div>
-                </motion.div>
-              ))
+                  <p className="text-[#3d3d3d] font-medium">No Google reviews found yet.</p>
+                  <p className="text-gray-500 text-sm mt-1">Connect your account in Settings.</p>
+                </div>
+              ) : (
+                gmbReviews.map((review, index) => {
+                  const rating = getGmbRating(review.starRating);
+                  return (
+                    <motion.div
+                      key={review.reviewId}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      className="review-card"
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* GMB Rating badge (1-5 scale) */}
+                        <div
+                          className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                          style={{ background: getRatingColor(rating, 5) }}
+                        >
+                          {rating}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
+                            <span className="font-semibold text-[#3d3d3d] mr-1">{review.reviewer || "Google User"}</span>
+                            {/* Google Logo Badge */}
+                            <span className="bg-white border border-gray-200 px-1.5 py-0.5 rounded flex items-center gap-1 shadow-sm">
+                              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                              </svg>
+                            </span>
+                            <div className="flex gap-0.5 mt-0.5">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star key={star} size={16} fill={star <= rating ? "#ffcc01" : "#e8e8e8"} color={star <= rating ? "#ffcc01" : "#e8e8e8"} />
+                              ))}
+                            </div>
+                            <span className="flex items-center gap-1 text-sm text-gray-500">
+                              <Calendar size={14} />
+                              {formatDate(review.createTime)}
+                            </span>
+                          </div>
+
+                          {review.comment && (
+                            <p className="text-gray-600 text-sm">
+                              {review.comment}
+                            </p>
+                          )}
+
+                          {/* GMB Review Reply */}
+                          {review.reviewReply && (
+                            <div className="response-badge mt-4">
+                              <div className="flex items-center gap-2 mb-1">
+                                <MessageSquare className="text-[#6bbc4a]" size={14} />
+                                <span className="text-[#6bbc4a] font-medium text-sm">Response</span>
+                              </div>
+                              <p className="text-gray-600 text-sm">{review.reviewReply}</p>
+                            </div>
+                          )}
+
+                          {/* Actions */}
+                          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                            <button
+                              onClick={() => openModal("reply", review, true)}
+                              className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
+                            >
+                              <Reply size={14} />
+                              Reply
+                            </button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )
             )}
           </div>
 
