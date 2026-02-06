@@ -51,6 +51,77 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
 
+    // Calculate GMB Stats before constructing response
+    const gmbStats = company.gmbEnabled ? await (async () => {
+      // 1. Try internal database first
+      const ratings = await prisma.gMBReview.groupBy({
+        by: ['starRating'],
+        where: { companyId: company.id },
+        _count: true
+      });
+
+      let totalScore = 0;
+      let totalCount = 0;
+      const ratingMap: Record<string, number> = { "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5 };
+
+      ratings.forEach((r: any) => {
+        if (r.starRating && ratingMap[r.starRating]) {
+          const score = ratingMap[r.starRating];
+          const count = r._count;
+          totalScore += score * count;
+          totalCount += count;
+        }
+      });
+
+      if (totalCount > 0) return { rating: totalScore / totalCount, count: totalCount };
+
+      // 2. Fallback to Google Places API if DB is empty
+      if (process.env.GOOGLE_PLACES_API_KEY && company.name) {
+        try {
+          // Step 1: Search for the Place ID using Text Search (New)
+          const searchUrl = 'https://places.googleapis.com/v1/places:searchText';
+          const searchResponse = await fetch(searchUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY as string,
+              'X-Goog-FieldMask': 'places.name,places.id,places.formattedAddress'
+            },
+            body: JSON.stringify({
+              textQuery: company.name
+            })
+          });
+
+          const searchData = await searchResponse.json();
+
+          if (searchData.places && searchData.places.length > 0) {
+            const placeId = searchData.places[0].name;
+
+            // Step 2: Get Place Details (Rating & Count)
+            const detailsUrl = `https://places.googleapis.com/v1/${placeId}`;
+            const detailsResponse = await fetch(detailsUrl, {
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY as string,
+                'X-Goog-FieldMask': 'rating,userRatingCount'
+              }
+            });
+
+            const details = await detailsResponse.json();
+
+            if (details.rating) {
+              return { rating: details.rating, count: details.userRatingCount || 0 };
+            }
+          }
+          return { rating: 0, count: 0 };
+        } catch (e) {
+          console.error("Places API Fallback Error:", e);
+          return { rating: 0, count: 0 };
+        }
+      }
+      return { rating: 0, count: 0 };
+    })() : { rating: 0, count: 0 };
+
     // The response includes location stats with star distribution
     return NextResponse.json({
       locationId: data.locationId,
