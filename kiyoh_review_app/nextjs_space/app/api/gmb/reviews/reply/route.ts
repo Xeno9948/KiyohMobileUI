@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { getGoogleOAuthCredentials } from "@/lib/google-oauth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +14,7 @@ async function refreshAccessToken(company: any) {
         throw new Error("No refresh token available");
     }
 
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const { clientId, clientSecret } = await getGoogleOAuthCredentials();
 
     if (!clientId || !clientSecret) {
         throw new Error("OAuth not configured");

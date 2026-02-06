@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getGoogleOAuthCredentials } from "@/lib/google-oauth";
 
 export const dynamic = "force-dynamic";
 
@@ -44,9 +45,7 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const clientId = process.env.GOOGLE_CLIENT_ID;
-        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-        const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+        const { clientId, clientSecret, redirectUri } = await getGoogleOAuthCredentials();
 
         if (!clientId || !clientSecret || !redirectUri) {
             return NextResponse.redirect(

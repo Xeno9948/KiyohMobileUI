@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { getGoogleOAuthCredentials } from "@/lib/google-oauth";
 
 export const dynamic = "force-dynamic";
 
@@ -33,12 +34,11 @@ export async function GET(req: NextRequest) {
             }, { status: 400 });
         }
 
-        const clientId = process.env.GOOGLE_CLIENT_ID;
-        const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+        const { clientId, redirectUri } = await getGoogleOAuthCredentials();
 
         if (!clientId || !redirectUri) {
             return NextResponse.json({
-                error: "Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_REDIRECT_URI environment variables."
+                error: "Google OAuth not configured. Please set credentials in Admin Settings or environment variables."
             }, { status: 500 });
         }
 
