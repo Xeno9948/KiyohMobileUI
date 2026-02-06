@@ -27,6 +27,14 @@ model Company {
   gmbRefreshToken  String?   // Encrypted OAuth refresh token
   gmbTokenExpiry   DateTime?
   
+  // Facebook Integration
+  fbEnabled         Boolean   @default(false)
+  fbPageId          String?
+  fbAccessToken     String?   // Long-lived user token
+  fbPageAccessToken String?   // Page specific token
+  fbTokenExpiry     DateTime?
+  facebookReviews   FacebookReview[]
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   users         User[]
@@ -129,4 +137,23 @@ model GMBReview {
   @@index([companyId])
   @@index([createTime])
   @@index([starRating])
+}
+
+model FacebookReview {
+  id              String    @id @default(cuid())
+  reviewId        String    @unique // Facebook Review ID
+  companyId       String
+  company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  reviewerName    String?
+  reviewerId      String?
+  rating          Int?      // 1-5
+  reviewText      String?
+  recommendationType String? // 'positive', 'neutral', etc.
+  createdTime     DateTime?
+  url             String?   // Link to review
+  lastSyncedAt    DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([companyId])
 }
