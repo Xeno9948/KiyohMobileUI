@@ -365,7 +365,7 @@ export default function DashboardContent() {
             </div>
 
             {/* Google Rating Badge (Conditionally Rendered) */}
-            {stats?.gmbEnabled && stats.gmbTotalReviews > 0 && (
+            {stats?.gmbEnabled && (stats.gmbTotalReviews || 0) > 0 && (
               <div className="flex flex-col items-center mt-6 pt-6 border-t border-gray-100 w-full">
                 <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
                   <div className="w-8 h-8 relative">
@@ -379,21 +379,21 @@ export default function DashboardContent() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-gray-800 text-lg">
-                        {stats.gmbAverageRating.toFixed(1)}
+                        {(stats.gmbAverageRating || 0).toFixed(1)}
                       </span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
                             size={14}
-                            fill={star <= Math.round(stats.gmbAverageRating) ? "#ffcc01" : "#e8e8e8"}
-                            color={star <= Math.round(stats.gmbAverageRating) ? "#ffcc01" : "#e8e8e8"}
+                            fill={star <= Math.round(stats.gmbAverageRating || 0) ? "#ffcc01" : "#e8e8e8"}
+                            color={star <= Math.round(stats.gmbAverageRating || 0) ? "#ffcc01" : "#e8e8e8"}
                           />
                         ))}
                       </div>
                     </div>
                     <p className="text-xs text-gray-500">
-                      {stats.gmbTotalReviews} Google reviews
+                      {stats.gmbTotalReviews || 0} Google reviews
                     </p>
                   </div>
                 </div>
