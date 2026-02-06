@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { reviewAuthor, rating, reviewText } = await request.json();
+    const { reviewAuthor, rating, reviewText, source } = await request.json();
 
     if (!reviewText) {
       return NextResponse.json({ error: "Review text required" }, { status: 400 });
@@ -31,27 +31,29 @@ export async function POST(request: NextRequest) {
     }
 
     const companyName = user.company.name;
+    const platformName = source === "google" ? "Google" : "Kiyoh";
+    const maxRating = source === "google" ? 5 : 10;
 
     const aiProvider = settings?.aiProvider || "openai";
     const aiApiKey = settings?.aiApiKey || process.env.OPENAI_API_KEY;
     const aiModel = settings?.aiModel || "gpt-3.5-turbo";
 
-    console.log(`Generating AI response using provider: ${aiProvider}`);
+    console.log(`Generating AI response using provider: ${aiProvider} for ${platformName} review`);
 
     const systemPrompt = `You are a customer service agent for ${companyName}.
-Your task is to write a professional, friendly response to a customer review.
+Your task is to write a professional, friendly response to a customer review on ${platformName}.
 IMPORTANT: Detect the language of the review and write your response IN THE SAME LANGUAGE.
 
 Guidelines:
 - Keep it short and personal (2-4 sentences).
 - Start with the customer's name if known.
-- If positive (${rating}/10): Thank them warmly.
-- If neutral (${rating}/10): Thank them for feedback and offer improvement.
-- If negative (${rating}/10): Show empathy, apologize, and suggest a solution.
+- If positive (${rating}/${maxRating}): Thank them warmly.
+- If neutral (${rating}/${maxRating}): Thank them for feedback and offer improvement.
+- If negative (${rating}/${maxRating}): Show empathy, apologize, and suggest a solution.
 - End with a welcoming closing.
 - Use "we" (first person plural).`;
 
-    const userPrompt = `Customer: ${reviewAuthor || "Anonymous"}\nRating: ${rating}/10\nReview: "${reviewText}"`;
+    const userPrompt = `Customer: ${reviewAuthor || "Anonymous"}\nRating: ${rating}/${maxRating}\nReview: "${reviewText}"`;
 
     let suggestedResponse = "";
 
