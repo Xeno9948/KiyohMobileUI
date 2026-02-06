@@ -115,15 +115,24 @@ export async function GET(req: NextRequest) {
         const accessToken = await getValidAccessToken(company);
 
         // Fetch reviews from GMB API
-        // Ensure account/location IDs are properly formatted
-        const accountId = company.gmbAccountId.startsWith('accounts/') ? company.gmbAccountId : `accounts/${company.gmbAccountId}`;
-        const locationId = company.gmbLocationId.startsWith('locations/') ? company.gmbLocationId : `locations/${company.gmbLocationId}`;
+        // GMB Location ID usually comes in format "accounts/{accountId}/locations/{locationId}"
+        // If it already has the full path, use it directly.
 
-        const reviewsUrl = `https://mybusiness.googleapis.com/v4/${accountId}/${locationId}/reviews`;
+
+        let targetResource = company.gmbLocationId;
+
+        // Fallback or cleanup if stored incorrectly
+        if (!targetResource.startsWith('accounts/')) {
+            const accountId = company.gmbAccountId.startsWith('accounts/') ? company.gmbAccountId : `accounts/${company.gmbAccountId}`;
+            const locationPart = company.gmbLocationId.startsWith('locations/') ? company.gmbLocationId : `locations/${company.gmbLocationId}`;
+            targetResource = `${accountId}/${locationPart}`;
+        }
+
+        // Use the modern My Business Business Information API (not the deprecated v4 endpoint)
+        const reviewsUrl = `https://mybusinessbusinessinformation.googleapis.com/v1/${targetResource}/reviews`;
 
         console.log(`[GMB] Fetching reviews from: ${reviewsUrl}`);
-        console.log(`[GMB] Account ID stored: ${company.gmbAccountId}`);
-        console.log(`[GMB] Location ID stored: ${company.gmbLocationId}`);
+        console.log(`[GMB] Raw Location ID stored: ${company.gmbLocationId}`);
 
         const reviewsResponse = await fetch(reviewsUrl, {
             headers: {
@@ -143,7 +152,8 @@ export async function GET(req: NextRequest) {
 
             return NextResponse.json({
                 error: "Failed to fetch GMB reviews",
-                details: errorText
+                details: errorText,
+                debugUrl: reviewsUrl
             }, { status: reviewsResponse.status });
         }
 
@@ -189,7 +199,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
             reviews: dbReviews,
             totalReviews: dbReviews.length,
-            source: 'gmb'
+            source: 'gmb',
+            debug: {
+                url: reviewsUrl,
+                count: reviews.length,
+                dbCount: dbReviews.length,
+                accountId: company.gmbAccountId,
+                locationId: company.gmbLocationId
+            }
         });
     } catch (error: any) {
         console.error("GMB reviews fetch error:", error);
