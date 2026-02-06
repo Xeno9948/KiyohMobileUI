@@ -117,16 +117,21 @@ export async function GET(req: NextRequest) {
         // Fetch reviews from GMB API using the modern Business Profile API v1
         // The correct format is: locations/{locationId}/reviews (NOT accounts/{accountId}/locations/{locationId}/reviews)
 
-        let locationResource = company.gmbLocationId;
+        // Build the correct resource path using BOTH account and location IDs
+        // Google v4 API format: https://mybusiness.googleapis.com/v4/accounts/{accountId}/locations/{locationId}/reviews
+        let accountId = company.gmbAccountId;
+        let locationId = company.gmbLocationId;
 
-        // Ensure it has the "locations/" prefix
-        if (!locationResource.startsWith('locations/')) {
-            locationResource = `locations/${company.gmbLocationId}`;
+        // Strip prefixes if they exist - we'll build the full path ourselves
+        if (accountId && accountId.startsWith('accounts/')) {
+            accountId = accountId.replace('accounts/', '');
+        }
+        if (locationId && locationId.startsWith('locations/')) {
+            locationId = locationId.replace('locations/', '');
         }
 
-        // Use the Google Business Profile API (formerly My Business API)
-        // This endpoint works with just the location ID, no account ID needed
-        const reviewsUrl = `https://mybusinessbusinessinformation.googleapis.com/v1/${locationResource}/reviews`;
+        // Use Google My Business API v4 (the correct endpoint per official docs)
+        const reviewsUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`;
 
         console.log(`[GMB] Fetching reviews from: ${reviewsUrl}`);
 
