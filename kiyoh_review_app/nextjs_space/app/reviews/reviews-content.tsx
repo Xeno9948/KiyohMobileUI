@@ -52,6 +52,7 @@ export default function ReviewsContent() {
   const [gmbReviews, setGmbReviews] = useState<GMBReview[]>([]);
   const [gmbLoading, setGmbLoading] = useState(false);
   const [gmbStats, setGmbStats] = useState({ average: 0, total: 0 });
+  const [gmbDebug, setGmbDebug] = useState<any>(null); // New debug state
 
   // Shared State
   const [loading, setLoading] = useState(true);
@@ -116,14 +117,19 @@ export default function ReviewsContent() {
     }
   };
 
+
+
   const fetchGMBReviews = async () => {
     setGmbLoading(true);
+    setGmbDebug(null);
     try {
       const res = await fetch("/api/gmb/reviews");
+      const data = await res.json();
+
       if (res.ok) {
-        const data = await res.json();
         const reviews = data.reviews || [];
         setGmbReviews(reviews);
+        setGmbDebug(data.debug); // Store debug info
 
         // Calculate stats
         const total = reviews.length;
@@ -132,9 +138,13 @@ export default function ReviewsContent() {
           average: total > 0 ? sum / total : 0,
           total
         });
+      } else {
+        console.error("GMB Fetch Error:", data);
+        setGmbDebug({ error: data.error, details: data.details, debugUrl: data.debugUrl });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch GMB reviews", err);
+      setGmbDebug({ error: err.message, stack: err.stack });
     } finally {
       setGmbLoading(false);
     }
@@ -616,6 +626,14 @@ export default function ReviewsContent() {
                   </div>
                   <p className="text-[#3d3d3d] font-medium">No Google reviews found yet.</p>
                   <p className="text-gray-500 text-sm mt-1">Connect your account in Settings.</p>
+
+                  {/* Debug Info */}
+                  {gmbDebug && (
+                    <div className="mt-4 p-4 bg-gray-100 rounded text-left overflow-x-auto text-xs font-mono">
+                      <p className="font-bold text-gray-700 mb-2">Debug Info:</p>
+                      <pre>{JSON.stringify(gmbDebug, null, 2)}</pre>
+                    </div>
+                  )}
                 </div>
               ) : (
                 gmbReviews.map((review, index) => {
