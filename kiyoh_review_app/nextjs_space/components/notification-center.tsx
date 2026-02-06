@@ -21,6 +21,7 @@ interface Notification {
 
 export default function NotificationCenter() {
   const router = useRouter();
+  const t = useTranslations("Notifications");
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -243,10 +244,6 @@ export default function NotificationCenter() {
             transition={{ duration: 0.2 }}
             className="fixed left-2 right-2 top-20 sm:absolute sm:top-full sm:right-0 sm:left-auto sm:w-96 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-[60] origin-top-right"
           >
-            const t = useTranslations("Notifications");
-
-            // ... (inside render) ...
-
             {/* Header */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -469,7 +466,7 @@ export default function NotificationCenter() {
                       <Sparkles className="text-[#6bbc4a] flex-shrink-0 mt-0.5" size={16} />
                       <div>
                         <p className="text-sm text-[#3d3d3d] font-medium">
-                          {useTranslations("AI")('modalUpsell')}
+                          Contact your account specialist to enable AI-generated responses.
                         </p>
                       </div>
                     </div>
