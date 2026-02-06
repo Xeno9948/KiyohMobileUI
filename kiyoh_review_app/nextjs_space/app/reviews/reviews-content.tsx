@@ -567,89 +567,78 @@ return (
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.03 }}
-                  className="review-card"
+                  className="review-card hover:shadow-md transition-shadow duration-200"
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col sm:flex-row items-start gap-4 p-1">
                     {/* Rating Badge */}
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
-                      style={{ background: getRatingColor(review?.rating || 0) }}
-                    >
-                      {review?.rating || 0}
+                    <div className="flex items-center justify-between w-full sm:w-auto">
+                      <div
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                        style={{ background: getRatingColor(review?.rating || 0) }}
+                      >
+                        {review?.rating || 0}
+                      </div>
+                      {/* Mobile Date */}
+                      <span className="sm:hidden flex items-center gap-1 text-xs text-gray-500">
+                        <Calendar size={12} />
+                        {review?.dateSince}
+                      </span>
                     </div>
 
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 w-full">
                       {/* Header */}
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
-                        <span className="font-semibold text-[#3d3d3d] mr-1">{review?.reviewAuthor || "Anoniem"}</span>
-                        <div className="flex gap-0.5 mt-0.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              size={16}
-                              fill={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
-                              color={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
-                            />
-                          ))}
+                      <div className="flex flex-wrap items-center justify-between mb-2 gap-2">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="font-bold text-gray-900 text-lg sm:text-base">{review?.reviewAuthor || "Anoniem"}</span>
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                size={16}
+                                fill={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
+                                color={star <= Math.round((review?.rating || 0) / 2) ? "#ffcc01" : "#e8e8e8"}
+                              />
+                            ))}
+                          </div>
+                          {review?.city && (
+                            <span className="hidden sm:flex items-center gap-1 text-sm text-gray-500">
+                              <MapPin size={14} />
+                              {review.city}
+                            </span>
+                          )}
                         </div>
-                        {review?.city && (
-                          <span className="flex items-center gap-1 text-sm text-gray-500">
-                            <MapPin size={14} />
-                            {review.city}
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1 text-sm text-gray-500">
+                        {/* Desktop Date */}
+                        <span className="hidden sm:flex items-center gap-1 text-sm text-gray-400 whitespace-nowrap">
                           <Calendar size={14} />
-                          {formatDate(review?.dateSince)}
+                          {review?.dateSince}
                         </span>
                       </div>
 
                       {/* Content */}
-                      {getReviewText(review, "DEFAULT_ONELINER") && (
-                        <p className="text-[#3d3d3d] font-medium mb-1">
-                          &ldquo;{getReviewText(review, "DEFAULT_ONELINER")}&rdquo;
-                        </p>
-                      )}
-
-                      {getReviewText(review, "DEFAULT_OPINION") && (
-                        <p className="text-gray-600 text-sm">
-                          {getReviewText(review, "DEFAULT_OPINION")}
-                        </p>
-                      )}
-
-                      {/* Business Response */}
-                      {review?.reviewComments && (
-                        <div className="response-badge mt-4">
-                          <div className="flex items-center gap-2 mb-1">
-                            <MessageSquare className="text-[#6bbc4a]" size={14} />
-                            <span className="text-[#6bbc4a] font-medium text-sm">{t('responseBadge')}</span>
-                          </div>
-                          <p className="text-gray-600 text-sm">{review.reviewComments}</p>
-                        </div>
-                      )}
+                      <div className="space-y-1.5 mb-3">
+                        {getReviewText(review, "DEFAULT_ONELINER") && (
+                          <strong className="block text-gray-900 font-medium">{getReviewText(review, "DEFAULT_ONELINER")}</strong>
+                        )}
+                        {getReviewText(review, "DEFAULT_OPINION") && (
+                          <p className="text-gray-600 leading-relaxed">{getReviewText(review, "DEFAULT_OPINION")}</p>
+                        )}
+                        {!getReviewText(review, "DEFAULT_ONELINER") && !getReviewText(review, "DEFAULT_OPINION") && (
+                          <p className="text-gray-400 italic text-sm">Geen tekst</p>
+                        )}
+                      </div>
 
                       {/* Actions */}
-                      <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex justify-start pt-2 border-t border-gray-50">
                         <button
-                          onClick={() => openModal("reply", review)}
-                          className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
+                          onClick={() => {
+                            setSelectedReview(review);
+                            setSelectedReviewType("kiyoh");
+                            setModalType("reply");
+                          }}
+                          className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-1 px-2 -ml-2 rounded hover:bg-blue-50 transition-colors"
                         >
-                          <Reply size={14} />
-                          {t('reply')}
-                        </button>
-                        <button
-                          onClick={() => openModal("changeRequest", review)}
-                          className="filter-tag hover:border-[#ffcc01] hover:text-[#eb5b0c]"
-                        >
-                          <Edit3 size={14} />
-                          {t('changeRequest')}
-                        </button>
-                        <button
-                          onClick={() => openModal("abuse", review)}
-                          className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
-                        >
-                          <Flag size={14} />
-                          {t('report')}
+                          <Reply size={16} />
+                          Reageren
                         </button>
                       </div>
                     </div>
@@ -657,8 +646,7 @@ return (
                 </motion.div>
               ))
             )
-          ) : (
-            // GMB Reviews List
+          ) : activeTab === "google" ? (
             gmbReviews.length === 0 ? (
               <div className="kiyoh-card p-8 text-center bg-gray-50 border-dashed border-2 border-gray-200">
                 <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
@@ -671,8 +659,6 @@ return (
                 </div>
                 <p className="text-[#3d3d3d] font-medium">No Google reviews found yet.</p>
                 <p className="text-gray-500 text-sm mt-1">Connect your account in Settings.</p>
-
-                {/* Debug Info */}
                 {gmbDebug && (
                   <div className="mt-4 p-4 bg-gray-100 rounded text-left overflow-x-auto text-xs font-mono">
                     <p className="font-bold text-gray-700 mb-2">Debug Info:</p>
@@ -681,81 +667,150 @@ return (
                 )}
               </div>
             ) : (
-              gmbReviews.map((review, index) => {
-                const rating = getGmbRating(review.starRating);
-                return (
-                  <motion.div
-                    key={review.reviewId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className="review-card"
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* GMB Rating badge (1-5 scale) */}
+              gmbReviews.map((review, index) => (
+                <motion.div
+                  key={review.reviewId || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="review-card hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex flex-col sm:flex-row items-start gap-4 p-1">
+                    {/* Rating Badge */}
+                    <div className="flex items-center justify-between w-full sm:w-auto">
                       <div
-                        className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
-                        style={{ background: getRatingColor(rating, 5) }}
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0 bg-white border border-gray-100 shadow-sm"
                       >
-                        {rating}
+                        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                        </svg>
                       </div>
+                      {/* Mobile Date */}
+                      <span className="sm:hidden flex items-center gap-1 text-xs text-gray-500">
+                        <Calendar size={12} />
+                        {new Date(review.createTime).toLocaleDateString()}
+                      </span>
+                    </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
-                          <span className="font-semibold text-[#3d3d3d] mr-1">{review.reviewer || "Google User"}</span>
-                          {/* Google Logo Badge */}
-                          <span className="bg-white border border-gray-200 px-1.5 py-0.5 rounded flex items-center gap-1 shadow-sm">
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                            </svg>
-                          </span>
-                          <div className="flex gap-0.5 mt-0.5">
+                    <div className="flex-1 min-w-0 w-full">
+                      {/* Header */}
+                      <div className="flex flex-wrap items-center justify-between mb-2 gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="font-bold text-gray-900 text-lg sm:text-base">{review.reviewer || "Google User"}</span>
+                          <div className="flex gap-0.5">
                             {[1, 2, 3, 4, 5].map((star) => (
-                              <Star key={star} size={16} fill={star <= rating ? "#ffcc01" : "#e8e8e8"} color={star <= rating ? "#ffcc01" : "#e8e8e8"} />
+                              <Star
+                                key={star}
+                                size={16}
+                                fill={star <= getGmbRating(review.starRating) ? "#ffcc01" : "#e8e8e8"}
+                                color={star <= getGmbRating(review.starRating) ? "#ffcc01" : "#e8e8e8"}
+                              />
                             ))}
                           </div>
-                          <span className="flex items-center gap-1 text-sm text-gray-500">
-                            <Calendar size={14} />
-                            {formatDate(review.createTime)}
-                          </span>
                         </div>
+                        <span className="hidden sm:flex items-center gap-1 text-sm text-gray-400">
+                          <Calendar size={14} />
+                          {new Date(review.createTime).toLocaleDateString()}
+                        </span>
+                      </div>
 
-                        {review.comment && (
-                          <p className="text-gray-600 text-sm">
-                            {review.comment}
-                          </p>
+                      {/* Content */}
+                      <div className="space-y-1.5 mb-3">
+                        {review.comment ? (
+                          <p className="text-gray-600 leading-relaxed">{review.comment}</p>
+                        ) : (
+                          <p className="text-gray-400 italic text-sm">No text</p>
                         )}
+                      </div>
 
-                        {/* GMB Review Reply */}
-                        {review.reviewReply && (
-                          <div className="response-badge mt-4">
-                            <div className="flex items-center gap-2 mb-1">
-                              <MessageSquare className="text-[#6bbc4a]" size={14} />
-                              <span className="text-[#6bbc4a] font-medium text-sm">Response</span>
-                            </div>
-                            <p className="text-gray-600 text-sm">{review.reviewReply}</p>
-                          </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
-                          <button
-                            onClick={() => openModal("reply", review, true)}
-                            className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
-                          >
-                            <Reply size={14} />
-                            Reply
-                          </button>
-                        </div>
-
+                      {/* Actions */}
+                      <div className="flex justify-start pt-2 border-t border-gray-50">
+                        <button
+                          onClick={() => {
+                            setSelectedReview(review as any);
+                            setSelectedReviewType("google");
+                            setModalType("reply");
+                          }}
+                          className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-1 px-2 -ml-2 rounded hover:bg-blue-50 transition-colors"
+                        >
+                          <Reply size={16} />
+                          Reply
+                        </button>
                       </div>
                     </div>
-                  </motion.div>
-                );
-              })
+                  </div>
+                </motion.div>
+              ))
+            )
+          ) : (
+            // Facebook Reviews
+            fbReviews.length === 0 ? (
+              <div className="kiyoh-card p-8 text-center">
+                <p className="text-gray-500">No Facebook reviews found yet.</p>
+              </div>
+            ) : (
+              fbReviews.map((review, index) => (
+                <motion.div
+                  key={review.reviewId || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="review-card hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex flex-col sm:flex-row items-start gap-4 p-1">
+                    {/* Rating Badge */}
+                    <div className="flex items-center justify-between w-full sm:w-auto">
+                      <div
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0 bg-[#1877F2]/10"
+                      >
+                        <Facebook className="text-[#1877F2]" size={24} />
+                      </div>
+                      {/* Mobile Date */}
+                      <span className="sm:hidden flex items-center gap-1 text-xs text-gray-500">
+                        <Calendar size={12} />
+                        {review.createdTime ? new Date(review.createdTime).toLocaleDateString() : ''}
+                      </span>
+                    </div>
+
+                    <div className="flex-1 min-w-0 w-full">
+                      {/* Header */}
+                      <div className="flex flex-wrap items-center justify-between mb-2 gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="font-bold text-gray-900 text-lg sm:text-base">{review.reviewerName || "Facebook User"}</span>
+                          {(review.rating) > 0 && (
+                            <div className="flex gap-0.5">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  size={16}
+                                  fill={star <= review.rating ? "#ffcc01" : "#e8e8e8"}
+                                  color={star <= review.rating ? "#ffcc01" : "#e8e8e8"}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <span className="hidden sm:flex items-center gap-1 text-sm text-gray-400">
+                          <Calendar size={14} />
+                          {review.createdTime ? new Date(review.createdTime).toLocaleDateString() : ''}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-1.5">
+                        {review.reviewText ? (
+                          <p className="text-gray-600 leading-relaxed">{review.reviewText}</p>
+                        ) : (
+                          <p className="text-gray-400 italic text-sm">No text</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
             )
           )}
         </div>
