@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Settings, Key, Globe, Hash, CheckCircle, AlertCircle, Loader2, ExternalLink, Save } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "@/hooks/use-translations";
+import GMBSettings from "@/components/gmb-settings";
 
 interface Company {
   id: string;
@@ -305,6 +306,15 @@ export default function SettingsContent() {
           )}
         </motion.div>
       </div>
+
+      {/* Google My Business Settings */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <GMBSettings />
+      </motion.div>
     </div>
   );
 }

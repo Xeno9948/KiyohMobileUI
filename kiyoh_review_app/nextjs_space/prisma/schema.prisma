@@ -18,11 +18,21 @@ model Company {
   isActive      Boolean   @default(true)
   aiEnabled     Boolean   @default(true)
   strongPoints  String?   // JSON array of AI-detected strong points
+  
+  // Google My Business Integration
+  gmbEnabled       Boolean   @default(false)
+  gmbAccountId     String?
+  gmbLocationId    String?
+  gmbAccessToken   String?   // Encrypted OAuth access token
+  gmbRefreshToken  String?   // Encrypted OAuth refresh token
+  gmbTokenExpiry   DateTime?
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   users         User[]
   invites       ReviewInvite[]
   notifications ReviewNotification[]
+  gmbReviews    GMBReview[]
 
   @@unique([locationId])
   @@index([locationId])
@@ -94,4 +104,25 @@ model SystemSettings {
   aiApiKey        String?
   aiModel         String   @default("gpt-4-turbo")
   updatedAt       DateTime @updatedAt
+}
+
+model GMBReview {
+  id              String    @id @default(cuid())
+  reviewId        String    @unique  // GMB review ID
+  companyId       String
+  company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  reviewer        String?   // Reviewer display name
+  starRating      String?   // ONE, TWO, THREE, FOUR, FIVE
+  comment         String?   // Review text
+  createTime      DateTime? // When review was created
+  updateTime      DateTime? // Last update time
+  reviewReply     String?   // Business reply text
+  replyUpdateTime DateTime? // When reply was last updated
+  lastSyncedAt    DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([companyId])
+  @@index([createTime])
+  @@index([starRating])
 }

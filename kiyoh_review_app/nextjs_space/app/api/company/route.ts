@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Don't expose full API token, just show masked version
-    const maskedToken = user.company.apiToken 
+    const maskedToken = user.company.apiToken
       ? `${user.company.apiToken.slice(0, 8)}...${user.company.apiToken.slice(-4)}`
       : null;
 
@@ -38,6 +38,9 @@ export async function GET(req: NextRequest) {
         baseUrl: user.company.baseUrl,
         isActive: user.company.isActive,
         aiEnabled: user.company.aiEnabled,
+        gmbEnabled: user.company.gmbEnabled,
+        gmbAccountId: user.company.gmbAccountId,
+        gmbLocationId: user.company.gmbLocationId,
         createdAt: user.company.createdAt
       }
     });
@@ -59,8 +62,8 @@ export async function POST(req: NextRequest) {
     const { name, locationId, apiToken, tenantId, baseUrl } = body ?? {};
 
     if (!name || !locationId || !apiToken) {
-      return NextResponse.json({ 
-        error: "Company name, Location ID, and API Token are required" 
+      return NextResponse.json({
+        error: "Company name, Location ID, and API Token are required"
       }, { status: 400 });
     }
 
@@ -74,7 +77,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!testResponse.ok) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: "Invalid API credentials. Please verify your Location ID and API Token.",
         details: await testResponse.text()
       }, { status: 400 });
@@ -130,8 +133,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       company: {
         id: company.id,
         name: company.name,
@@ -140,8 +143,8 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     if (error.code === "P2002") {
-      return NextResponse.json({ 
-        error: "A company with this Location ID already exists" 
+      return NextResponse.json({
+        error: "A company with this Location ID already exists"
       }, { status: 400 });
     }
     return NextResponse.json({ error: "Failed to save company", details: error?.message }, { status: 500 });
