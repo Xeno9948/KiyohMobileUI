@@ -90,8 +90,11 @@ export async function GET(req: NextRequest) {
         let gmbAccountId: string | null = null;
         let gmbLocationId: string | null = null;
 
+        console.log("[GMB OAuth] Starting account/location fetch...");
+
         try {
             // Fetch accounts
+            console.log("[GMB OAuth] Fetching accounts from Google API...");
             const accountsResponse = await fetch(
                 "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
                 {
@@ -99,14 +102,23 @@ export async function GET(req: NextRequest) {
                 }
             );
 
-            if (accountsResponse.ok) {
+            console.log(`[GMB OAuth] Accounts API response status: ${accountsResponse.status}`);
+
+            if (!accountsResponse.ok) {
+                const errorText = await accountsResponse.text();
+                console.error(`[GMB OAuth] ❌ Accounts API error: ${errorText}`);
+            } else {
                 const accountsData = await accountsResponse.json();
+                console.log(`[GMB OAuth] Accounts data:`, JSON.stringify(accountsData, null, 2));
+
                 if (accountsData.accounts && accountsData.accounts.length > 0) {
                     // Use the first account
                     const account = accountsData.accounts[0];
                     gmbAccountId = account.name; // Format: accounts/{account_id}
+                    console.log(`[GMB OAuth] ✅ Found account: ${gmbAccountId}`);
 
                     // Fetch locations for this account
+                    console.log(`[GMB OAuth] Fetching locations for account: ${account.name}`);
                     const locationsResponse = await fetch(
                         `https://mybusinessbusinessinformation.googleapis.com/v1/${account.name}/locations`,
                         {
@@ -114,19 +126,34 @@ export async function GET(req: NextRequest) {
                         }
                     );
 
-                    if (locationsResponse.ok) {
+                    console.log(`[GMB OAuth] Locations API response status: ${locationsResponse.status}`);
+
+                    if (!locationsResponse.ok) {
+                        const errorText = await locationsResponse.text();
+                        console.error(`[GMB OAuth] ❌ Locations API error: ${errorText}`);
+                    } else {
                         const locationsData = await locationsResponse.json();
+                        console.log(`[GMB OAuth] Locations data:`, JSON.stringify(locationsData, null, 2));
+
                         if (locationsData.locations && locationsData.locations.length > 0) {
                             // Use the first location
-                            gmbLocationId = locationsData.locations[0].name; // Format: locations/{location_id}
+                            gmbLocationId = locationsData.locations[0].name; // Format: accounts/{accountId}/locations/{locationId}
+                            console.log(`[GMB OAuth] ✅ Found location: ${gmbLocationId}`);
+                        } else {
+                            console.warn(`[GMB OAuth] ⚠️ No locations found in response`);
                         }
                     }
+                } else {
+                    console.warn(`[GMB OAuth] ⚠️ No accounts found in response`);
                 }
             }
-        } catch (fetchError) {
-            console.error("Failed to fetch GMB account/location info:", fetchError);
-            // Continue anyway - we can fetch this later
+        } catch (fetchError: any) {
+            console.error("[GMB OAuth] ❌ Exception during account/location fetch:", fetchError);
+            console.error("[GMB OAuth] Error stack:", fetchError.stack);
         }
+
+        console.log(`[GMB OAuth] Final IDs - Account: ${gmbAccountId}, Location: ${gmbLocationId}`);
+        console.log(`[GMB OAuth] Saving to database for company: ${stateData.companyId}`);
 
         // Store tokens in database (in production, encrypt these!)
         await prisma.company.update({
@@ -140,6 +167,8 @@ export async function GET(req: NextRequest) {
                 gmbLocationId,
             },
         });
+
+        console.log(`[GMB OAuth] ✅ Database updated successfully`);
 
         // Determine the base URL for redirection
         const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
