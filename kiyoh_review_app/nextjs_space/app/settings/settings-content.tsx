@@ -6,6 +6,7 @@ import { Settings, Key, Globe, Hash, CheckCircle, AlertCircle, Loader2, External
 import Image from "next/image";
 import { useTranslations } from "@/hooks/use-translations";
 import GMBSettings from "@/components/gmb-settings";
+import FacebookSettings from "@/components/facebook-settings";
 
 interface Company {
   id: string;
@@ -315,6 +316,15 @@ export default function SettingsContent() {
         transition={{ delay: 0.2 }}
       >
         <GMBSettings />
+      </motion.div>
+
+      {/* Facebook Settings */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <FacebookSettings />
       </motion.div>
     </div>
   );
