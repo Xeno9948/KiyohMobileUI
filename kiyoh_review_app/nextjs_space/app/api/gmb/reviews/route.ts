@@ -115,7 +115,15 @@ export async function GET(req: NextRequest) {
         const accessToken = await getValidAccessToken(company);
 
         // Fetch reviews from GMB API
-        const reviewsUrl = `https://mybusiness.googleapis.com/v4/${company.gmbAccountId}/${company.gmbLocationId}/reviews`;
+        // Ensure account/location IDs are properly formatted
+        const accountId = company.gmbAccountId.startsWith('accounts/') ? company.gmbAccountId : `accounts/${company.gmbAccountId}`;
+        const locationId = company.gmbLocationId.startsWith('locations/') ? company.gmbLocationId : `locations/${company.gmbLocationId}`;
+
+        const reviewsUrl = `https://mybusiness.googleapis.com/v4/${accountId}/${locationId}/reviews`;
+
+        console.log(`[GMB] Fetching reviews from: ${reviewsUrl}`);
+        console.log(`[GMB] Account ID stored: ${company.gmbAccountId}`);
+        console.log(`[GMB] Location ID stored: ${company.gmbLocationId}`);
 
         const reviewsResponse = await fetch(reviewsUrl, {
             headers: {
@@ -127,7 +135,12 @@ export async function GET(req: NextRequest) {
 
         if (!reviewsResponse.ok) {
             const errorText = await reviewsResponse.text();
-            console.error("GMB API error:", errorText);
+            console.error("[GMB] API error:", errorText);
+
+            // If the error is 404, it might be due to invalid account/location combination
+            // or the API version/endpoint might have changed.
+            // Try fetching accounts to see what's available if this fails (future optimization)
+
             return NextResponse.json({
                 error: "Failed to fetch GMB reviews",
                 details: errorText
@@ -135,6 +148,7 @@ export async function GET(req: NextRequest) {
         }
 
         const data = await reviewsResponse.json();
+        console.log(`[GMB] Reviews fetched: ${data.reviews ? data.reviews.length : 0}`);
         const reviews = data.reviews || [];
 
         // Sync reviews to database
