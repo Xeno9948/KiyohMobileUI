@@ -141,14 +141,23 @@ export async function GET(req: NextRequest) {
             },
         });
 
+        // Determine the base URL for redirection
+        const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+        const protocol = req.headers.get("x-forwarded-proto") || "https";
+        const baseUrl = host ? `${protocol}://${host}` : new URL(req.url).origin;
+
         // Redirect back to settings with success message
-        return NextResponse.redirect(
-            new URL("/settings?gmb_success=true", req.url)
-        );
+        return NextResponse.redirect(`${baseUrl}/settings?gmb_success=true`);
     } catch (error: any) {
         console.error("GMB callback error:", error);
+
+        // Determine base URL even in error case
+        const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+        const protocol = req.headers.get("x-forwarded-proto") || "https";
+        const baseUrl = host ? `${protocol}://${host}` : "http://localhost:3000";
+
         return NextResponse.redirect(
-            new URL(`/settings?gmb_error=${encodeURIComponent(error.message || "unknown")}`, req.url || "http://localhost:3000")
+            `${baseUrl}/settings?gmb_error=${encodeURIComponent(error.message || "unknown")}`
         );
     }
 }
