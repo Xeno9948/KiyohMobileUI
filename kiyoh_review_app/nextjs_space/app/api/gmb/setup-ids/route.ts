@@ -35,28 +35,45 @@ export async function GET() {
 
         console.log(`[GMB Setup] Found company: ${company.name}`);
 
-        // Fetch accounts
-        console.log("[GMB Setup] Fetching accounts from Google...");
-        const accountsResponse = await fetch(
+        // Fetch accounts - Try v1 API first
+        console.log("[GMB Setup] Fetching accounts from Google (v1)...");
+        let accountsResponse = await fetch(
             "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
             {
-                headers: {
-                    Authorization: `Bearer ${company.gmbAccessToken}`,
-                },
+                headers: { Authorization: `Bearer ${company.gmbAccessToken}` },
             }
         );
 
+        let accountsData;
+        let usedV4 = false;
+
+        // If v1 fails (likely due to 0 quota), try v4 API
+        if (!accountsResponse.ok) {
+            console.log("[GMB Setup] v1 API failed, trying v4 API...");
+            accountsResponse = await fetch(
+                "https://mybusiness.googleapis.com/v4/accounts",
+                {
+                    headers: { Authorization: `Bearer ${company.gmbAccessToken}` },
+                }
+            );
+            usedV4 = true;
+        }
+
         if (!accountsResponse.ok) {
             const errorText = await accountsResponse.text();
-            console.error("[GMB Setup] Accounts API error:", errorText);
+            console.error(`[GMB Setup] Accounts API error (v${usedV4 ? '4' : '1'}):`, errorText);
+
+            // Return a helpful error with the link to enable the v4 API
             return NextResponse.json({
-                error: "Failed to fetch accounts from Google",
+                error: `Failed to fetch accounts. Please ensure the Google My Business API is enabled.`,
+                action: "ENABLE_API",
+                url: "https://console.developers.google.com/apis/api/mybusiness.googleapis.com/overview?project=333748327669",
                 details: errorText
             }, { status: accountsResponse.status });
         }
 
-        const accountsData = await accountsResponse.json();
-        console.log("[GMB Setup] Accounts response:", JSON.stringify(accountsData, null, 2));
+        accountsData = await accountsResponse.json();
+        console.log(`[GMB Setup] Accounts response (v${usedV4 ? '4' : '1'}):`, JSON.stringify(accountsData, null, 2));
 
         if (!accountsData.accounts || accountsData.accounts.length === 0) {
             return NextResponse.json({
