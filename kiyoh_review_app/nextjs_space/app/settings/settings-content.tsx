@@ -79,7 +79,8 @@ export default function SettingsContent() {
       }
 
       setSuccess(t('success'));
-      setCompany(data.company);
+      // Refetch to get complete company object (including baseUrl which is missing in POST response)
+      await fetchCompany();
       setFormData((prev) => ({ ...prev, apiToken: "" }));
     } catch (err: any) {
       setError(err.message || t('error'));
