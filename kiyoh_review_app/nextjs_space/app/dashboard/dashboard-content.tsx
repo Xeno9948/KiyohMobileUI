@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star, TrendingUp, Users, MessageSquare, RefreshCw, Settings, ArrowRight, CheckCircle, ThumbsUp, Eye, Sparkles, Check } from "lucide-react";
+import { Star, TrendingUp, Users, MessageSquare, RefreshCw, Settings, ArrowRight, CheckCircle, ThumbsUp, Eye, Sparkles, Check, Facebook } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
