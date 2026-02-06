@@ -625,17 +625,37 @@ export default function ReviewsContent() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex justify-start pt-2 border-t border-gray-50">
+                        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
                           <button
                             onClick={() => {
                               setSelectedReview(review);
                               setSelectedReviewType("kiyoh");
                               setModalType("reply");
                             }}
-                            className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-1 px-2 -ml-2 rounded hover:bg-blue-50 transition-colors"
+                            className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
                           >
-                            <Reply size={16} />
-                            Reageren
+                            <Reply size={14} />
+                            {t('reply')}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedReview(review);
+                              setModalType("changeRequest");
+                            }}
+                            className="filter-tag hover:border-[#ffcc01] hover:text-[#eb5b0c]"
+                          >
+                            <Edit3 size={14} />
+                            {t('changeRequest')}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedReview(review);
+                              setModalType("abuse");
+                            }}
+                            className="filter-tag hover:border-[#eb5b0c] hover:text-[#eb5b0c]"
+                          >
+                            <Flag size={14} />
+                            {t('report')}
                           </button>
                         </div>
                       </div>
@@ -724,16 +744,16 @@ export default function ReviewsContent() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex justify-start pt-2 border-t border-gray-50">
+                        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100">
                           <button
                             onClick={() => {
                               setSelectedReview(review as any);
                               setSelectedReviewType("google");
                               setModalType("reply");
                             }}
-                            className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1.5 py-1 px-2 -ml-2 rounded hover:bg-blue-50 transition-colors"
+                            className="filter-tag hover:border-[#6bbc4a] hover:text-[#6bbc4a]"
                           >
-                            <Reply size={16} />
+                            <Reply size={14} />
                             Reply
                           </button>
                         </div>

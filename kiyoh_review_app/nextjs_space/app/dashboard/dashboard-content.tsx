@@ -403,7 +403,7 @@ export default function DashboardContent() {
                       </p>
                     </div>
                   </div>
-                  <Link href="/reviews?tab=google" className="text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                  <Link href="/reviews?tab=google" className="text-xs font-medium text-gray-500 hover:text-[#eb5b0c] bg-gray-50 px-3 py-1.5 rounded-lg transition-colors">
                     Manage
                   </Link>
                 </div>
@@ -439,7 +439,7 @@ export default function DashboardContent() {
                       </p>
                     </div>
                   </div>
-                  <Link href="/reviews?tab=facebook" className="text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                  <Link href="/reviews?tab=facebook" className="text-xs font-medium text-gray-500 hover:text-[#eb5b0c] bg-gray-50 px-3 py-1.5 rounded-lg transition-colors">
                     Manage
                   </Link>
                 </div>
