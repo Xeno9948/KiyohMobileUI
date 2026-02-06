@@ -328,6 +328,31 @@ export default function ReviewsContent() {
     }
   };
 
+  // Helper to get normalized display data for the modal
+  const getModalReviewData = () => {
+    if (!selectedReview) return null;
+
+    if (selectedReviewType === "google") {
+      const r = selectedReview as GMBReview;
+      return {
+        author: r.reviewer || "Google User",
+        rating: getGmbRating(r.starRating),
+        text: r.comment || "",
+        date: r.createTime
+      };
+    } else {
+      const r = selectedReview as Review;
+      return {
+        author: r.reviewAuthor || "Anoniem",
+        rating: r.rating || 0,
+        text: getReviewText(r, "DEFAULT_OPINION") || getReviewText(r, "DEFAULT_ONELINER"),
+        date: r.dateSince
+      };
+    }
+  };
+
+  const modalData = getModalReviewData();
+
   return (
     <div className="space-y-6">
       {/* Platform Tabs */}
@@ -715,248 +740,220 @@ export default function ReviewsContent() {
         </>
       )}
 
-  // Helper to get normalized display data for the modal
-  const getModalReviewData = () => {
-    if (!selectedReview) return null;
 
-      if (selectedReviewType === "google") {
-      const r = selectedReview as GMBReview;
-      return {
-        author: r.reviewer || "Google User",
-      rating: getGmbRating(r.starRating),
-      text: r.comment || "",
-      date: r.createTime
-      };
-    } else {
-      const r = selectedReview as Review;
-      return {
-        author: r.reviewAuthor || "Anoniem",
-      rating: r.rating || 0,
-      text: getReviewText(r, "DEFAULT_OPINION") || getReviewText(r, "DEFAULT_ONELINER"),
-      date: r.dateSince
-      };
-    }
-  };
-
-      const modalData = getModalReviewData();
-
-      return (
-      <div className="space-y-6">
-        {/* ... existing code ... */}
-
-        {/* Moderation Modals */}
-        <AnimatePresence>
-          {modalType && selectedReview && modalData && (
+      {/* Moderation Modals */}
+      <AnimatePresence>
+        {modalType && selectedReview && modalData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={closeModal}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-              onClick={closeModal}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Modal Header */}
-                <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                  <h3 className="text-xl font-bold text-[#3d3d3d]">
-                    {modalType === "reply" && t('modals.replyTitle')}
-                    {modalType === "changeRequest" && t('modals.changeTitle')}
-                    {modalType === "abuse" && t('modals.reportTitle')}
-                  </h3>
-                  <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-full transition-all">
-                    <X size={20} className="text-gray-500" />
-                  </button>
-                </div>
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                <h3 className="text-xl font-bold text-[#3d3d3d]">
+                  {modalType === "reply" && t('modals.replyTitle')}
+                  {modalType === "changeRequest" && t('modals.changeTitle')}
+                  {modalType === "abuse" && t('modals.reportTitle')}
+                </h3>
+                <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-full transition-all">
+                  <X size={20} className="text-gray-500" />
+                </button>
+              </div>
 
-                {/* Review Preview */}
-                <div className="p-5 bg-gray-50 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
-                      style={{ background: getRatingColor(modalData.rating, selectedReviewType === "google" ? 5 : 10) }}
-                    >
-                      {modalData.rating}
-                    </div>
-                    <div>
-                      <p className="font-medium text-[#3d3d3d]">{modalData.author}</p>
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star key={star} size={12} fill={star <= (selectedReviewType === "google" ? modalData.rating : Math.round(modalData.rating / 2)) ? "#ffcc01" : "#e8e8e8"} color={star <= (selectedReviewType === "google" ? modalData.rating : Math.round(modalData.rating / 2)) ? "#ffcc01" : "#e8e8e8"} />
-                        ))}
-                      </div>
+              {/* Review Preview */}
+              <div className="p-5 bg-gray-50 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
+                    style={{ background: getRatingColor(modalData.rating, selectedReviewType === "google" ? 5 : 10) }}
+                  >
+                    {modalData.rating}
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#3d3d3d]">{modalData.author}</p>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} size={12} fill={star <= (selectedReviewType === "google" ? modalData.rating : Math.round(modalData.rating / 2)) ? "#ffcc01" : "#e8e8e8"} color={star <= (selectedReviewType === "google" ? modalData.rating : Math.round(modalData.rating / 2)) ? "#ffcc01" : "#e8e8e8"} />
+                      ))}
                     </div>
                   </div>
-                  {modalData.text && (
-                    <p className="text-gray-600 text-sm mt-2 italic">&ldquo;{modalData.text}&rdquo;</p>
-                  )}
                 </div>
+                {modalData.text && (
+                  <p className="text-gray-600 text-sm mt-2 italic">&ldquo;{modalData.text}&rdquo;</p>
+                )}
+              </div>
 
-                {/* Modal Content */}
-                <div className="p-5 space-y-4">
-                  {successMessage ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <CheckCircle className="text-[#6bbc4a] mb-3" size={48} />
-                      <p className="text-lg font-medium text-[#3d3d3d]">{successMessage}</p>
-                    </div>
-                  ) : (
-                    <>
-                      {error && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600 text-sm">
-                          <AlertCircle size={16} />
-                          {error}
+              {/* Modal Content */}
+              <div className="p-5 space-y-4">
+                {successMessage ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <CheckCircle className="text-[#6bbc4a] mb-3" size={48} />
+                    <p className="text-lg font-medium text-[#3d3d3d]">{successMessage}</p>
+                  </div>
+                ) : (
+                  <>
+                    {error && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600 text-sm">
+                        <AlertCircle size={16} />
+                        {error}
+                      </div>
+                    )}
+
+                    {modalType === "reply" && (
+                      <>
+                        {/* AI Generate Button or Upsell */}
+                        {aiEnabled ? (
+                          <button
+                            onClick={generateAIResponse}
+                            disabled={generatingAI}
+                            className="w-full py-3 px-4 bg-gradient-to-r from-[#6bbc4a] to-[#8fd96e] text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-70 mb-4"
+                          >
+                            {generatingAI ? (
+                              <>
+                                <Loader2 className="animate-spin" size={18} />
+                                {t('modals.aiGenerating')}
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles size={18} />
+                                {t('modals.aiGenerate')}
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          // AI Upsell Message in Modal
+                          <div className="mb-4 p-3 bg-gradient-to-r from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20 rounded-xl flex items-start gap-3">
+                            <Sparkles className="text-[#6bbc4a] flex-shrink-0 mt-0.5" size={16} />
+                            <div>
+                              <p className="text-sm text-[#3d3d3d] font-medium">
+                                {useTranslations("AI")('modalUpsell')}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.yourReply')}</label>
+                          <textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder={aiEnabled ? t('modals.placeholderAI') : t('modals.placeholderPublic')}
+                            rows={4}
+                            className="kiyoh-input resize-none"
+                          />
                         </div>
-                      )}
 
-                      {modalType === "reply" && (
-                        <>
-                          {/* AI Generate Button or Upsell */}
-                          {aiEnabled ? (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.type')}</label>
+                          <div className="flex gap-3">
                             <button
-                              onClick={generateAIResponse}
-                              disabled={generatingAI}
-                              className="w-full py-3 px-4 bg-gradient-to-r from-[#6bbc4a] to-[#8fd96e] text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-70 mb-4"
+                              type="button"
+                              onClick={() => setReplyType("PUBLIC")}
+                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${replyType === "PUBLIC" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }`}
                             >
-                              {generatingAI ? (
-                                <>
-                                  <Loader2 className="animate-spin" size={18} />
-                                  {t('modals.aiGenerating')}
-                                </>
-                              ) : (
-                                <>
-                                  <Sparkles size={18} />
-                                  {t('modals.aiGenerate')}
-                                </>
-                              )}
+                              {t('modals.public')}
                             </button>
-                          ) : (
-                            // AI Upsell Message in Modal
-                            <div className="mb-4 p-3 bg-gradient-to-r from-[#6bbc4a]/10 to-transparent border border-[#6bbc4a]/20 rounded-xl flex items-start gap-3">
-                              <Sparkles className="text-[#6bbc4a] flex-shrink-0 mt-0.5" size={16} />
-                              <div>
-                                <p className="text-sm text-[#3d3d3d] font-medium">
-                                  {useTranslations("AI")('modalUpsell')}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.yourReply')}</label>
-                            <textarea
-                              value={replyText}
-                              onChange={(e) => setReplyText(e.target.value)}
-                              placeholder={aiEnabled ? t('modals.placeholderAI') : t('modals.placeholderPublic')}
-                              rows={4}
-                              className="kiyoh-input resize-none"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setReplyType("PRIVATE")}
+                              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${replyType === "PRIVATE" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }`}
+                            >
+                              {t('modals.private')}
+                            </button>
                           </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {replyType === "PUBLIC" ? t('modals.publicDesc') : t('modals.privateDesc')}
+                          </p>
+                        </div>
 
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.type')}</label>
-                            <div className="flex gap-3">
-                              <button
-                                type="button"
-                                onClick={() => setReplyType("PUBLIC")}
-                                className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${replyType === "PUBLIC" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                  }`}
-                              >
-                                {t('modals.public')}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setReplyType("PRIVATE")}
-                                className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${replyType === "PRIVATE" ? "bg-[#6bbc4a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                  }`}
-                              >
-                                {t('modals.private')}
-                              </button>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {replyType === "PUBLIC" ? t('modals.publicDesc') : t('modals.privateDesc')}
-                            </p>
-                          </div>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={sendEmail}
+                            onChange={(e) => setSendEmail(e.target.checked)}
+                            className="w-4 h-4 text-[#6bbc4a] border-gray-300 rounded focus:ring-[#6bbc4a]"
+                          />
+                          <span className="text-sm text-gray-700">{t('modals.emailNotify')}</span>
+                        </label>
 
-                          <label className="flex items-center gap-3 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={sendEmail}
-                              onChange={(e) => setSendEmail(e.target.checked)}
-                              className="w-4 h-4 text-[#6bbc4a] border-gray-300 rounded focus:ring-[#6bbc4a]"
-                            />
-                            <span className="text-sm text-gray-700">{t('modals.emailNotify')}</span>
-                          </label>
+                        <button
+                          onClick={handleReply}
+                          disabled={submitting || !replyText.trim()}
+                          className="w-full btn-kiyoh justify-center disabled:opacity-50"
+                        >
+                          {submitting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+                          {submitting ? t('modals.sending') : t('modals.send')}
+                        </button>
+                      </>
+                    )}
 
-                          <button
-                            onClick={handleReply}
-                            disabled={submitting || !replyText.trim()}
-                            className="w-full btn-kiyoh justify-center disabled:opacity-50"
-                          >
-                            {submitting ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                            {submitting ? t('modals.sending') : t('modals.send')}
-                          </button>
-                        </>
-                      )}
+                    {modalType === "changeRequest" && (
+                      <>
+                        <div className="p-4 bg-[#ffcc01]/10 rounded-xl">
+                          <p className="text-gray-700 text-sm">
+                            <strong>{modalData.author}</strong> {t('modals.changeText')}
+                          </p>
+                        </div>
 
-                      {modalType === "changeRequest" && (
-                        <>
-                          <div className="p-4 bg-[#ffcc01]/10 rounded-xl">
-                            <p className="text-gray-700 text-sm">
-                              <strong>{modalData.author}</strong> {t('modals.changeText')}
-                            </p>
-                          </div>
+                        <button
+                          onClick={handleChangeRequest}
+                          disabled={submitting}
+                          className="w-full py-3 px-4 bg-[#ffcc01] hover:bg-[#e6b800] text-[#3d3d3d] font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                        >
+                          {submitting ? <Loader2 className="animate-spin" size={18} /> : <Edit3 size={18} />}
+                          {submitting ? t('modals.sending') : t('modals.changeTitle')}
+                        </button>
+                      </>
+                    )}
 
-                          <button
-                            onClick={handleChangeRequest}
-                            disabled={submitting}
-                            className="w-full py-3 px-4 bg-[#ffcc01] hover:bg-[#e6b800] text-[#3d3d3d] font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                          >
-                            {submitting ? <Loader2 className="animate-spin" size={18} /> : <Edit3 size={18} />}
-                            {submitting ? t('modals.sending') : t('modals.changeTitle')}
-                          </button>
-                        </>
-                      )}
+                    {modalType === "abuse" && (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.reportReason')}</label>
+                          <textarea
+                            value={abuseReason}
+                            onChange={(e) => setAbuseReason(e.target.value)}
+                            placeholder={t('modals.reportPlaceholder')}
+                            rows={4}
+                            className="kiyoh-input resize-none"
+                          />
+                        </div>
 
-                      {modalType === "abuse" && (
-                        <>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('modals.reportReason')}</label>
-                            <textarea
-                              value={abuseReason}
-                              onChange={(e) => setAbuseReason(e.target.value)}
-                              placeholder={t('modals.reportPlaceholder')}
-                              rows={4}
-                              className="kiyoh-input resize-none"
-                            />
-                          </div>
+                        <div className="p-4 bg-[#eb5b0c]/10 rounded-xl">
+                          <p className="text-gray-700 text-sm">
+                            {t('modals.reportNote')}
+                          </p>
+                        </div>
 
-                          <div className="p-4 bg-[#eb5b0c]/10 rounded-xl">
-                            <p className="text-gray-700 text-sm">
-                              {t('modals.reportNote')}
-                            </p>
-                          </div>
-
-                          <button
-                            onClick={handleAbuseReport}
-                            disabled={submitting || !abuseReason.trim()}
-                            className="w-full py-3 px-4 bg-[#eb5b0c] hover:bg-[#d44f08] text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                          >
-                            {submitting ? <Loader2 className="animate-spin" size={18} /> : <Flag size={18} />}
-                            {submitting ? t('modals.sending') : t('modals.sendReport')}
-                          </button>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              </motion.div>
+                        <button
+                          onClick={handleAbuseReport}
+                          disabled={submitting || !abuseReason.trim()}
+                          className="w-full py-3 px-4 bg-[#eb5b0c] hover:bg-[#d44f08] text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                        >
+                          {submitting ? <Loader2 className="animate-spin" size={18} /> : <Flag size={18} />}
+                          {submitting ? t('modals.sending') : t('modals.sendReport')}
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div >
-      );
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div >
+  );
 }
