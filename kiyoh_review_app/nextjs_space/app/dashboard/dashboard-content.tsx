@@ -366,11 +366,11 @@ export default function DashboardContent() {
 
             {/* Google Rating Badge (Conditionally Rendered) */}
             {stats?.gmbEnabled && (stats.gmbTotalReviews || 0) > 0 && (
-              <div className="flex flex-col items-center mt-6 pt-6 border-t border-gray-100 w-full">
+              <div className="flex flex-col items-start mt-6 pt-6 border-t border-gray-100 w-full pl-2">
                 <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
                   <div className="w-8 h-8 relative">
                     <Image
-                      src="/google-g-logo.png"
+                      src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
                       alt="Google"
                       fill
                       className="object-contain"

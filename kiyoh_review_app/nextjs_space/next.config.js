@@ -10,6 +10,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: ["ik.imagekit.io", "upload.wikimedia.org"],
+  },
   typescript: {
     ignoreBuildErrors: false,
   },
