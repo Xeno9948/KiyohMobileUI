@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
         let totalCount = 0;
         const ratingMap: Record<string, number> = { "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5 };
 
-        ratings.forEach(r => {
+        ratings.forEach((r: any) => {
           if (r.starRating && ratingMap[r.starRating]) {
             const score = ratingMap[r.starRating];
             const count = r._count;
