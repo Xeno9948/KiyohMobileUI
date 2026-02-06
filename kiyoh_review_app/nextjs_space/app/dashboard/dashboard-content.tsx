@@ -447,7 +447,8 @@ export default function DashboardContent() {
             )}
 
             {/* Action Button - Moved to Right */}
-            <div className="flex justify-end mt-6">
+            {/* Action Button - Moved to Right */}
+            <div className="flex justify-center lg:justify-end mt-6">
               <Link href="/invite" className="btn-kiyoh">
                 <MessageSquare size={18} />
                 {t('sendInvite')}
