@@ -28,6 +28,9 @@ interface Statistics {
   gmbEnabled?: boolean;
   gmbAverageRating?: number;
   gmbTotalReviews?: number;
+  fbEnabled?: boolean;
+  fbAverageRating?: number;
+  fbTotalReviews?: number;
 }
 
 // ... existing code ...
@@ -394,6 +397,37 @@ export default function DashboardContent() {
                     </div>
                     <p className="text-xs text-gray-500">
                       {stats.gmbTotalReviews || 0} Google reviews
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Facebook Rating Badge (Conditionally Rendered) */}
+            {stats?.fbEnabled && (stats.fbTotalReviews || 0) > 0 && (
+              <div className="flex flex-col items-start mt-4 pt-4 border-t border-gray-100 w-full pl-2">
+                <div className="flex items-center gap-3 bg-white p-2.5 rounded-lg border border-gray-200 shadow-sm">
+                  <div className="w-8 h-8 relative flex items-center justify-center bg-[#1877F2] rounded-full">
+                    <Facebook size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-gray-800 text-lg">
+                        {(stats.fbAverageRating || 0).toFixed(1)}
+                      </span>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            size={14}
+                            fill={star <= Math.round(stats.fbAverageRating || 0) ? "#ffcc01" : "#e8e8e8"}
+                            color={star <= Math.round(stats.fbAverageRating || 0) ? "#ffcc01" : "#e8e8e8"}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {stats.fbTotalReviews || 0} Facebook reviews
                     </p>
                   </div>
                 </div>

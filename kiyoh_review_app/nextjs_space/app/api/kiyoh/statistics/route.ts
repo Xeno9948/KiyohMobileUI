@@ -122,6 +122,19 @@ export async function GET(req: NextRequest) {
       return { rating: 0, count: 0 };
     })() : { rating: 0, count: 0 };
 
+    // Calculate Facebook Stats
+    const fbStats = company.fbEnabled ? await (async () => {
+      const agg = await prisma.facebookReview.aggregate({
+        where: { companyId: company.id, rating: { not: null } },
+        _avg: { rating: true },
+        _count: { rating: true }
+      });
+      return {
+        rating: agg._avg.rating || 0,
+        count: agg._count.rating || 0
+      };
+    })() : { rating: 0, count: 0 };
+
     // The response includes location stats with star distribution
     return NextResponse.json({
       locationId: data.locationId,
@@ -134,6 +147,11 @@ export async function GET(req: NextRequest) {
       gmbEnabled: company.gmbEnabled,
       gmbAverageRating: gmbStats.rating,
       gmbTotalReviews: gmbStats.count,
+
+      // Facebook Integration
+      fbEnabled: company.fbEnabled,
+      fbAverageRating: fbStats.rating,
+      fbTotalReviews: fbStats.count,
 
       last12MonthAverageRating: data.last12MonthAverageRating,
       last12MonthNumberReviews: data.last12MonthNumberReviews,
