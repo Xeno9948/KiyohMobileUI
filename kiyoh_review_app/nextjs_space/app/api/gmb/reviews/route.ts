@@ -126,7 +126,7 @@ export async function GET(req: NextRequest) {
         if (locationId && locationId.startsWith('locations/')) locationId = locationId.replace('locations/', '');
 
         // Use the dedicated Reviews API service
-        const reviewsUrl = `https://mybusinessreviews.googleapis.com/v1/accounts/${accountId}/locations/${locationId}/reviews`;
+        const reviewsUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`;
 
         console.log(`[GMB] Fetching reviews from: ${reviewsUrl}`);
 
